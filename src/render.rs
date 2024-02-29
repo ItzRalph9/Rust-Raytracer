@@ -1,0 +1,69 @@
+use core::f64;
+
+use minifb::Window;
+use rayon::prelude::*;
+
+use crate::check_input as input;
+use crate::{color::Color, ray::Ray, scene::Scene, scene::SCENE};
+
+use crate::constants::{WIDTH, HEIGHT, MAX_DEPTH,SAMPLES_PER_PIXEL};
+
+pub fn render(window: &Window) -> Vec<u32> {
+    let mut buffer = vec![0; WIDTH * HEIGHT];
+
+    input::check_input(&window, &mut SCENE.write().unwrap());
+
+    let scene = SCENE.read().unwrap();
+
+    // Parallelize rendering using Rayon
+    buffer
+        .par_chunks_mut(WIDTH)
+        .enumerate()
+        .for_each(|(j, row)| {
+            for i in 0..WIDTH {
+                render_pixel(row, i, j, &scene);
+            }
+        });
+
+    buffer
+}
+
+fn render_pixel(row: &mut[u32], i: usize, j: usize, scene: &Scene) {
+    let ray = Ray::get_ray(i, j, &scene);
+
+    let mut color = Color::new(0.0, 0.0, 0.0);
+
+    for _ in 0..SAMPLES_PER_PIXEL {
+        color += ray_color(ray, MAX_DEPTH, &scene);
+    }
+
+    write_color(&mut row[i], color);
+}
+
+fn ray_color(ray: Ray, depth: usize, scene: &Scene) -> Color {
+    if depth <= 0 {
+        return Color::new(0.0, 0.0, 0.0);
+    }
+
+    if let Some(hit_object) = scene.hit(ray) {
+        if let Some((attenuation, scattered)) = hit_object.material.scatter(ray, &hit_object) {
+            return attenuation * ray_color(scattered, depth-1, scene);
+        }
+
+        return Color::new(0.0, 0.0, 0.0);
+    }
+
+    // background
+    let unit_direction = ray.direction.normalize();
+    let a = 0.5 * (unit_direction.y + 1.0);
+    (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+}
+
+fn write_color(pixel: &mut u32, mut color: Color) {
+    color /= SAMPLES_PER_PIXEL as f64;
+
+    color = color.linear_to_gamma();
+    color = color.clamp();
+
+    *pixel = color.to_u32();
+}

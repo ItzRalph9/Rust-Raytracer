@@ -4,6 +4,7 @@ use minifb::Window;
 use rayon::prelude::*;
 
 use crate::check_input as input;
+use crate::fps_counter::FpsCounter;
 use crate::{color::Color, ray::Ray, scene::Scene, scene::SCENE};
 
 use crate::constants::{WIDTH, HEIGHT};
@@ -67,4 +68,22 @@ fn write_color(pixel: &mut Color, mut color: Color, samples_per_pixel: usize) {
     color = color.clamp();
 
     *pixel += color;
+}
+
+pub fn get_clamped_buffer(buffer: &Vec<Color>, fps_counter: &mut FpsCounter, frame_index: &mut usize, reset_accumulation: bool) -> Vec<u32> {
+    if reset_accumulation {
+        *frame_index = 1;
+    }
+
+    let mut accumulator: Vec<u32> = vec![0; WIDTH * HEIGHT];
+    accumulator.iter_mut().zip(buffer.iter()).for_each(|(acc_pixel, buffer_pixel)| {
+        let color = *buffer_pixel * (1.0 / *frame_index as f64);
+        *acc_pixel = color.to_u32();
+    });
+
+    fps_counter.update(&mut accumulator);
+
+    *frame_index += 1;
+
+    accumulator
 }

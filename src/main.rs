@@ -14,6 +14,7 @@ mod camera;
 
 extern crate minifb;
 
+use color::Color;
 use fps_counter::Fps;
 use minifb::{Key, Window, WindowOptions};
 
@@ -24,14 +25,30 @@ fn main() {
     .expect("Unable to create window");
 
     let mut fps_counter = Fps::start();
+    let mut frame_index = 0;
+
+    let mut buffer = vec![Color::new(0.0, 0.0, 0.0); WIDTH * HEIGHT];
 
     // Event loop
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        let mut buffer = render::render(&window);
+        let reset_accumulation;
+        (buffer, reset_accumulation) = render::render(&window, buffer);
         
-        fps_counter.update();
-        draw::draw_text(&mut buffer, &fps_counter.fps_text, 10, 10, 0xFFFFFFFF, WIDTH);
+        if reset_accumulation {
+            frame_index = 0;
+        }
 
-        window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
+        frame_index += 1;
+
+        let mut accumulator: Vec<u32> = vec![0; WIDTH * HEIGHT];
+        accumulator.iter_mut().zip(buffer.iter()).for_each(|(acc_pixel, buffer_pixel)| {
+            let color = *buffer_pixel * (1.0 / frame_index as f64);
+            *acc_pixel = color.to_u32();
+        });
+
+        fps_counter.update();
+        draw::draw_text(&mut accumulator, &fps_counter.fps_text, 10, 10, 0x000000, WIDTH);
+        
+        window.update_with_buffer(&accumulator, WIDTH, HEIGHT).unwrap();
     }
 }

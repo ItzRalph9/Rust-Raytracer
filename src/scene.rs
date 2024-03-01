@@ -23,8 +23,8 @@ impl Scene {
             material: Material::Lambertian(Color::new(0.5, 0.5, 0.5)),
         });
         
-        for a in -11..11 {
-            for b in -11..11 {
+        for a in (-5..5).step_by(3) {
+            for b in (-5..5).step_by(3) {
                 let choose_material = Material::random_float();
                 let center = Vector3::new(a as f64 + 0.9 * Material::random_float(), 0.2, b as f64 + 0.9 * Material::random_float());
     
@@ -73,7 +73,7 @@ impl Scene {
             hittable_list,
             camera: Camera::init(
                 CameraDefaults {
-                    samples_per_pixel: 500,
+                    samples_per_pixel: 1,
                     max_depth: 50,
                     vertical_fov: 20.0,
                     lookfrom: Vector3::new(13.0, 2.0, 3.0),

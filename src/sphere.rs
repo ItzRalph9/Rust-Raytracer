@@ -12,7 +12,7 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn calculate_normal(&self, hit_position: Vector3<f64>) -> Vector3<f64>{
-        (hit_position - self.center).normalize()
+        (hit_position - self.center) / self.radius
     }
 
     pub fn intersect_ray_sphere(ray: Ray, center: Vector3<f64>, radius: f64) -> Option<f64> {

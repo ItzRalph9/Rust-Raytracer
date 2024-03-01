@@ -47,10 +47,10 @@ impl Ray {
                     }
     
                     let hit_position = ray.calculate_hit_position(distance);
-                    let normal = sphere.calculate_normal(hit_position);
+                    let outward_normal = sphere.calculate_normal(hit_position);
                     let material = sphere.material;
-    
-                    hit_object = Some(HitObject::new(hit_position, normal, material, distance, true));
+                    
+                    hit_object = Some(HitObject::new(hit_position, ray, outward_normal, material, distance));
                 }
             }
         }
@@ -62,7 +62,7 @@ impl Ray {
     fn pixel_sample_square() -> Vector3<f64> {
         let mut rng = rand::thread_rng();
 
-        let px = -0.5 + rng.gen::<f64>();  
+        let px = -0.5 + rng.gen::<f64>();
         let py = -0.5 + rng.gen::<f64>();
 
         (px * Viewport::pixel_delta_u()) + (py * Viewport::pixel_delta_v())
@@ -100,5 +100,13 @@ impl Ray {
 
     pub fn reflect(v: Vector3<f64>, n: Vector3<f64>) -> Vector3<f64> {
         v - 2.0 * v.dot(&n) * n
+    }
+
+    pub fn refract(uv: Vector3<f64>, n: Vector3<f64>, etai_over_etat: f64) -> Vector3<f64> {
+        let cos_theta = -uv.dot(&n).min(1.0);
+        let r_out_perp = etai_over_etat * (uv + cos_theta * n);
+        let r_out_parallel = -((1.0 - r_out_perp.length_squared()).abs()).sqrt() * n;
+        
+        r_out_perp + r_out_parallel
     }
 }

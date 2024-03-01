@@ -1,9 +1,12 @@
+use rand::prelude::*;
+
 use crate::{color::Color, hit_object::HitObject, ray::Ray, vector3::Vector3Extensions};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Material {
     Lambertian(Color),
-    Metal(Color, f64)
+    Metal(Color, f64),
+    Dielectric(f64),
 }
 
 impl Material {
@@ -33,6 +36,43 @@ impl Material {
                     None
                 }
             },
+            Material::Dielectric(refaction_index) => {
+                let attenuation = Color::new(1.0, 1.0, 1.0);
+
+                let mut refraction_ratio = *refaction_index;
+                if hit_object.front_face {
+                    refraction_ratio = 1.0 / refaction_index;
+                }
+
+                let unit_direction = r_in.direction.normalize();
+
+                let cos_theta = -unit_direction.dot(&hit_object.normal).min(1.0);
+                let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        
+                let cannot_refract = refraction_ratio * sin_theta > 1.0;
+        
+                let mut direction = Ray::refract(unit_direction, hit_object.normal, refraction_ratio);
+                if cannot_refract || Self::reflectance(cos_theta, refraction_ratio) > Self::random_float() {
+                    direction = Ray::reflect(unit_direction, hit_object.normal);
+                }
+
+                let scattered = Ray::new(hit_object.point, direction);
+                
+                Some((attenuation, scattered))
+            },
         }
+    }
+
+    fn reflectance(cosine: f64, ref_idx: f64) -> f64 {
+        // Use Schlick's approximation for reflectance.
+        let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+        let r0 = r0 * r0;
+
+        r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
+    }
+
+    fn random_float() -> f64 {
+        let mut rng = rand::thread_rng();
+        rng.gen::<f64>()
     }
 }

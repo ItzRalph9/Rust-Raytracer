@@ -10,6 +10,7 @@ mod draw;
 mod fps_counter;
 mod material;
 mod vector3;
+mod camera;
 
 extern crate minifb;
 

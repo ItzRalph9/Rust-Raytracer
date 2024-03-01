@@ -6,7 +6,7 @@ use rayon::prelude::*;
 use crate::check_input as input;
 use crate::{color::Color, ray::Ray, scene::Scene, scene::SCENE};
 
-use crate::constants::{WIDTH, HEIGHT, MAX_DEPTH,SAMPLES_PER_PIXEL};
+use crate::constants::{WIDTH, HEIGHT};
 
 pub fn render(window: &Window) -> Vec<u32> {
     let mut buffer = vec![0; WIDTH * HEIGHT];
@@ -29,15 +29,15 @@ pub fn render(window: &Window) -> Vec<u32> {
 }
 
 fn render_pixel(row: &mut[u32], i: usize, j: usize, scene: &Scene) {
-    let ray = Ray::get_ray(i, j, &scene);
+    let ray = scene.camera.get_ray(i, j);
 
     let mut color = Color::new(0.0, 0.0, 0.0);
 
-    for _ in 0..SAMPLES_PER_PIXEL {
-        color += ray_color(ray, MAX_DEPTH, &scene);
+    for _ in 0..scene.camera.samples_per_pixel {
+        color += ray_color(ray, scene.camera.max_depth, &scene);
     }
 
-    write_color(&mut row[i], color);
+    write_color(&mut row[i], color, scene.camera.samples_per_pixel);
 }
 
 fn ray_color(ray: Ray, depth: usize, scene: &Scene) -> Color {
@@ -59,8 +59,8 @@ fn ray_color(ray: Ray, depth: usize, scene: &Scene) -> Color {
     (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
 }
 
-fn write_color(pixel: &mut u32, mut color: Color) {
-    color /= SAMPLES_PER_PIXEL as f64;
+fn write_color(pixel: &mut u32, mut color: Color, samples_per_pixel: usize) {
+    color /= samples_per_pixel as f64;
 
     color = color.linear_to_gamma();
     color = color.clamp();

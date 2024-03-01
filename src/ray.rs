@@ -1,8 +1,7 @@
 use nalgebra::Vector3;
 use rand::prelude::*;
 
-use crate::{sphere::Sphere, hit_object::HitObject, scene::Scene, vector3::Vector3Extensions};
-use crate::scene::Viewport;
+use crate::{sphere::Sphere, hit_object::HitObject, vector3::Vector3Extensions};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ray {
@@ -17,19 +16,6 @@ impl Ray {
     
     pub fn calculate_hit_position(&self, distance: f64) -> Vector3<f64> {
         self.origin + distance * self.direction
-    }
-
-    pub fn get_ray(i: usize, j: usize, scene: &Scene) -> Ray {
-        let delta_u = scene.viewport.pixel_delta_u;
-        let delta_v = scene.viewport.pixel_delta_v;
-        let pixel_center = scene.viewport.pixel00_loc + (i as f64 * delta_u) + (j as f64 * delta_v);   
-
-        let pixel_sample = pixel_center + Self::pixel_sample_square(scene.viewport);
-
-        let ray_origin = scene.camera.position;
-        let ray_direction = pixel_sample - ray_origin;
-
-        Ray::new(ray_origin, ray_direction)
     }
 
     pub fn cast_ray(ray: Ray, spheres: &[Sphere]) -> Option<HitObject> {
@@ -56,16 +42,6 @@ impl Ray {
         }
     
         hit_object
-    }
-
-    // Returns a random point in the square surrounding a pixel at the origin.
-    fn pixel_sample_square(viewport: Viewport) -> Vector3<f64> {
-        let mut rng = rand::thread_rng();
-
-        let px = -0.5 + rng.gen::<f64>();
-        let py = -0.5 + rng.gen::<f64>();
-
-        (px * viewport.pixel_delta_u) + (py * viewport.pixel_delta_v)
     }
 
     pub fn random_unit_vector() -> Vector3<f64> {

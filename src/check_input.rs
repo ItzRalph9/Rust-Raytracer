@@ -50,7 +50,7 @@ fn move_camera(window: &Window, scene: &mut Scene) {
 fn move_sphere(window: &Window, scene: &mut Scene) {
     let speed = 0.25;
 
-    let mut sphere_center = scene.get_sphere_position();
+    let mut sphere_center = scene.get_sphere_position(None);
 
     let keys = window.get_keys();
     for t in keys {
@@ -65,5 +65,5 @@ fn move_sphere(window: &Window, scene: &mut Scene) {
         }
     }
 
-    scene.set_sphere_position(sphere_center);
+    scene.set_sphere_position(sphere_center, None);
 }

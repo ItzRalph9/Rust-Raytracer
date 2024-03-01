@@ -1,3 +1,5 @@
+use rand::prelude::*;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Color {
     pub r: f64,
@@ -33,6 +35,26 @@ impl Color {
             self.b.clamp(0.000, 0.999),
         )
     }
+
+    pub fn random() -> Self {
+        let mut rng = rand::thread_rng();
+        
+        let r = rng.gen::<f64>();
+        let g = rng.gen::<f64>();
+        let b = rng.gen::<f64>();
+
+        Color::new(r, g, b)
+    }
+
+    pub fn random_range(range: std::ops::Range<f64>) -> Self {
+        let mut rng = rand::thread_rng();
+        
+        let r = rng.gen_range(range.clone());
+        let g = rng.gen_range(range.clone());
+        let b = rng.gen_range(range.clone());
+
+        Color::new(r, g, b)
+    }
 }
 
 impl std::ops::Add<Color> for Color {
@@ -43,7 +65,7 @@ impl std::ops::Add<Color> for Color {
         let g = self.g + other.g;
         let b = self.b + other.b;
 
-        Color { r, g, b}
+        Color::new(r, g, b)
     }
 }
 
@@ -55,27 +77,6 @@ impl std::ops::AddAssign for Color {
     }
 }
 
-
-impl std::ops::Div<f64> for Color {
-    type Output = Color;
-
-    fn div(self, scalar: f64) -> Color {
-        let r = self.r / scalar;
-        let g = self.g / scalar;
-        let b = self.b / scalar;
-
-        Color { r, g, b}
-    }
-}
-
-impl std::ops::DivAssign<f64> for Color {
-    fn div_assign(&mut self, scalar: f64) {
-        self.r /= scalar;
-        self.g /= scalar;
-        self.b /= scalar;
-    }
-}
-
 impl std::ops::Mul<f64> for Color {
     type Output = Color;
 
@@ -84,7 +85,15 @@ impl std::ops::Mul<f64> for Color {
         let g = self.g * scalar;
         let b = self.b * scalar;
 
-        Color { r, g, b}
+        Color::new(r, g, b)
+    }
+}
+
+impl std::ops::MulAssign<f64> for Color {
+    fn mul_assign(&mut self, scalar: f64) {
+        self.r *= scalar;
+        self.g *= scalar;
+        self.b *= scalar;
     }
 }
 

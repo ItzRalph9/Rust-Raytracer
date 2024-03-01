@@ -71,8 +71,13 @@ impl Material {
         r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
     }
 
-    fn random_float() -> f64 {
+    pub fn random_float() -> f64 {
         let mut rng = rand::thread_rng();
         rng.gen::<f64>()
+    }
+
+    pub fn random_float_range(range: std::ops::Range<f64>) -> f64 {
+        let mut rng = rand::thread_rng();
+        rng.gen_range(range)
     }
 }

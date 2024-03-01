@@ -60,7 +60,7 @@ fn ray_color(ray: Ray, depth: usize, scene: &Scene) -> Color {
 }
 
 fn write_color(pixel: &mut u32, mut color: Color, samples_per_pixel: usize) {
-    color /= samples_per_pixel as f64;
+    color *= 1.0 / samples_per_pixel as f64;
 
     color = color.linear_to_gamma();
     color = color.clamp();

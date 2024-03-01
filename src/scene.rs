@@ -2,7 +2,7 @@ use nalgebra::Vector3;
 use once_cell::sync::Lazy;
 use std::sync::RwLock;
 
-use crate::{hit_object::HitObject, ray::Ray, sphere::Sphere, material::Material, color::Color, camera::Camera};
+use crate::{camera::{Camera, CameraDefaults}, color::Color, hit_object::HitObject, material::Material, ray::Ray, sphere::Sphere};
 
 pub struct Scene {
     pub hittable_list: Vec<Sphere>,
@@ -43,7 +43,18 @@ impl Scene {
                     material: Material::Metal(Color::new(0.8, 0.6, 0.2), 0.0),
                 },
             ],
-            camera: Camera::init(),
+            camera: Camera::init(
+                CameraDefaults {
+                    samples_per_pixel: 5,
+                    max_depth: 3,
+                    vertical_fov: 20.0,
+                    lookfrom: Vector3::new(-2.0, 2.0, 1.0),
+                    lookat : Vector3::new(0.0, 0.0, -1.0),
+                    vup: Vector3::new(0.0, 1.0, 0.0),
+                    defocus_angle: 10.0,
+                    focus_distance: 3.4,
+                }
+            ),
         }
     }
     

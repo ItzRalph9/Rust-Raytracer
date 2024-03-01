@@ -33,11 +33,11 @@ fn render_pixel(row: &mut[u32], i: usize, j: usize, scene: &Scene) {
 
     let mut color = Color::new(0.0, 0.0, 0.0);
 
-    for _ in 0..scene.camera.samples_per_pixel {
-        color += ray_color(ray, scene.camera.max_depth, &scene);
+    for _ in 0..scene.camera.defaults.samples_per_pixel {
+        color += ray_color(ray, scene.camera.defaults.max_depth, &scene);
     }
 
-    write_color(&mut row[i], color, scene.camera.samples_per_pixel);
+    write_color(&mut row[i], color, scene.camera.defaults.samples_per_pixel);
 }
 
 fn ray_color(ray: Ray, depth: usize, scene: &Scene) -> Color {

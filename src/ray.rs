@@ -60,16 +60,21 @@ impl Ray {
     // }
 
     pub fn random_in_unit_sphere() -> Vector3<f64> {
+        loop {
+            let p = Vector3::random_float_range(-1.0..1.0);
+            if p.length_squared() < 1.0 {
+                break p;
+            }
+        }
+    }
+
+    pub fn random_in_unit_disk() -> Vector3<f64> {
         let mut rng = rand::thread_rng();
 
         loop {
-            let x = rng.gen_range(-1.0..1.0);
-            let y = rng.gen_range(-1.0..1.0);
-            let z = rng.gen_range(-1.0..1.0);
-        
-            let p = Vector3::new(x, y, z);
+            let p = Vector3::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0), 0.0);
             if p.length_squared() < 1.0 {
-                break p;
+                return p;
             }
         }
     }

@@ -9,23 +9,42 @@ pub fn check_input(window: &Window, scene: &mut Scene) {
 
 fn move_camera(window: &Window, scene: &mut Scene) {
     let speed = 0.25;
+    let mut camera = scene.camera;
 
-    let mut camera_position = scene.camera.position;
+    let lookfrom = &mut camera.defaults.lookfrom;
+    let lookat = &mut camera.defaults.lookat;
+    let vup = &mut camera.defaults.vup;
 
     let keys = window.get_keys();
     for t in keys {
         match t {
-            Key::W => camera_position.z -= speed,
-            Key::A => camera_position.x -= speed,
-            Key::S => camera_position.z += speed,
-            Key::D => camera_position.x += speed,
-            Key::E => camera_position.y += speed,
-            Key::Q => camera_position.y -= speed,
+            Key::W => {
+                let forward = (*lookat - *lookfrom).normalize();
+                *lookfrom += forward * speed;
+            },
+            Key::A => {
+                let right = lookfrom.cross(&vup).normalize();
+                *lookfrom += -right * speed;
+            },
+            Key::S => {
+                let forward = (*lookat - *lookfrom).normalize();
+                *lookfrom += -forward * speed;
+            },
+            Key::D => {
+                let right = lookfrom.cross(&vup).normalize();
+                *lookfrom += right * speed;
+            },
+            Key::E => {
+                *lookfrom += *vup * speed;
+            },
+            Key::Q => {
+                *lookfrom -= *vup * speed;
+            },
             _ => {}
         }
     }
 
-    scene.camera.position = camera_position;
+    camera.update_camera(scene);
 }
 
 fn move_sphere(window: &Window, scene: &mut Scene) {

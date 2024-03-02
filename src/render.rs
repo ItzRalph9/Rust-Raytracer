@@ -5,7 +5,7 @@ use rayon::prelude::*;
 
 use crate::check_input as input;
 use crate::fps_counter::FpsCounter;
-use crate::{color::Color, ray::Ray, scene::Scene, scene::SCENE};
+use crate::{color::Color, ray::Ray, scene::Scene, scene::SCENE, interval::Interval};
 
 use crate::constants::{WIDTH, HEIGHT};
 
@@ -47,7 +47,8 @@ fn ray_color(ray: Ray, depth: usize, scene: &Scene) -> Color {
         return Color::new(0.0, 0.0, 0.0);
     }
 
-    if let Some(hit_object) = scene.hit(ray) {
+    let interval = Interval::new(0.001, f64::INFINITY);
+    if let Some(hit_object) = scene.hit(ray, interval) {
         if let Some((attenuation, scattered)) = hit_object.material.scatter(ray, &hit_object) {
             return attenuation * ray_color(scattered, depth-1, scene);
         }

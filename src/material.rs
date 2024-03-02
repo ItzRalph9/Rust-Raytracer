@@ -20,14 +20,14 @@ impl Material {
                     scatter_direction = hit_object.normal;
                 }
                 
-                let scattered = Ray::new(hit_object.point, scatter_direction);
+                let scattered = Ray::new(hit_object.point, scatter_direction, r_in.time);
                 let attenuation = *albedo;
 
                 Some((attenuation, scattered))
             },
             Material::Metal(albedo, fuzz) => {
                 let reflected = Ray::reflect(r_in.direction.normalize(), hit_object.normal);
-                let scattered = Ray::new(hit_object.point, reflected + *fuzz * Ray::random_unit_vector());
+                let scattered = Ray::new(hit_object.point, reflected + *fuzz * Ray::random_in_unit_sphere(), r_in.time);
                 let attenuation = *albedo;
                 
                 if scattered.direction.dot(&hit_object.normal) > 0.0 {
@@ -56,7 +56,7 @@ impl Material {
                     direction = Ray::reflect(unit_direction, hit_object.normal);
                 }
 
-                let scattered = Ray::new(hit_object.point, direction);
+                let scattered = Ray::new(hit_object.point, direction, r_in.time);
                 
                 Some((attenuation, scattered))
             },

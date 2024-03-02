@@ -3,6 +3,7 @@ use rand::prelude::*;
 use nalgebra::Vector3;
 
 use crate::constants::{WIDTH, HEIGHT};
+use crate::material::Material;
 use crate::{ray::Ray, scene::Scene};
 
 #[derive(Debug, Clone, Copy)]
@@ -81,8 +82,9 @@ impl Camera {
         // (defocus_angle <= 0) ? center : defocus_disk_sample()
         let ray_origin = self.defocus_disk_sample();
         let ray_direction = pixel_sample - ray_origin;
+        let ray_time = Material::random_float();
 
-        Ray::new(ray_origin, ray_direction)
+        Ray::new(ray_origin, ray_direction, ray_time)
     }
     
     fn degrees_to_radians(degrees: f64) -> f64 {

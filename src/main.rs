@@ -11,6 +11,7 @@ mod fps_counter;
 mod material;
 mod vector3;
 mod camera;
+mod interval;
 
 extern crate minifb;
 
@@ -28,7 +29,7 @@ fn main() {
     let mut frame_index = 1;
 
     let mut buffer = vec![Color::new(0.0, 0.0, 0.0); WIDTH * HEIGHT];
-    
+
     // Event loop
     while window.is_open() && !window.is_key_down(Key::Escape) {
         let reset_accumulation;

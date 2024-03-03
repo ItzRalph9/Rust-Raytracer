@@ -12,6 +12,10 @@ mod material;
 mod vector3;
 mod camera;
 mod interval;
+mod aabb;
+mod hittable_list;
+mod hittable;
+mod bvh;
 
 extern crate minifb;
 
@@ -32,10 +36,9 @@ fn main() {
 
     // Event loop
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        let reset_accumulation;
-        (buffer, reset_accumulation) = render::render(&window, buffer);
+        buffer = render::render(buffer);
 
-        let clamped_buffer = render::get_clamped_buffer(&buffer, &mut fps_counter, &mut frame_index, reset_accumulation);
+        let clamped_buffer = render::get_clamped_buffer(&buffer, &mut fps_counter, &mut frame_index);
         
         window.update_with_buffer(&clamped_buffer, WIDTH, HEIGHT).unwrap();
     }

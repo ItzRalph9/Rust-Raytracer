@@ -9,7 +9,7 @@ use crate::{ray::Ray, scene::Scene};
 #[derive(Debug, Clone, Copy)]
 pub struct Camera {
     pub defaults: CameraDefaults,
-    pub position: Vector3<f64>,
+    position: Vector3<f64>,
 
     pixel00_loc: Vector3<f64>,
     pixel_delta_u: Vector3<f64>,
@@ -66,7 +66,7 @@ impl Camera {
         }
     }
 
-    pub fn update_camera(&mut self, scene: &mut Scene) {
+    pub fn _update_camera(&mut self, scene: &mut Scene) {
         scene.camera = Camera::init(self.defaults);
     }
 

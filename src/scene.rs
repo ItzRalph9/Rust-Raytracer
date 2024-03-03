@@ -1,37 +1,24 @@
+use std::sync::Arc;
+
 use nalgebra::Vector3;
 use once_cell::sync::Lazy;
-use std::sync::RwLock;
 
-use crate::{camera::{Camera, CameraDefaults}, color::Color, hit_object::HitObject, material::Material, ray::Ray, sphere::Sphere, interval::Interval};
+use crate::{bvh::BvhNode, camera::{Camera, CameraDefaults}, color::Color, hittable_list::HittableList, material::Material, sphere::Sphere};
 
 pub struct Scene {
-    pub hittable_list: Vec<Sphere>,
+    pub hittable_list: HittableList,
     pub camera: Camera,
 }
 
 impl Scene {
-    pub fn hit(&self, ray: Ray, ray_t: Interval) -> Option<HitObject> {
-        let mut closest_so_far = ray_t.max;
-        let mut temp_hit_object = None;
-
-        for object in &self.hittable_list {
-            if let Some(hit_object) = object.hit(ray, Interval::new(ray_t.min, closest_so_far)) {
-                closest_so_far = hit_object.t;
-                temp_hit_object = Some(hit_object);
-            }
-        }
-
-        temp_hit_object
-    }
-
     pub fn new() -> Self {
-        let mut hittable_list: Vec<Sphere> = Vec::new();
+        let mut hittable_list = HittableList::new();
 
-        hittable_list.push(Sphere::new_stationary(
+        hittable_list.add(Arc::new(Sphere::new_stationary(
             Vector3::new(0.0, -1000.0, 0.0),
             1000.0,
             Material::Lambertian(Color::new(0.5, 0.5, 0.5)),
-        ));
+        )));
         
         for a in (-5..5).step_by(3) {
             for b in (-5..5).step_by(3) {
@@ -45,43 +32,47 @@ impl Scene {
                         // diffuse
                         let albedo = Color::random() * Color::random();
                         material = Material::Lambertian(albedo);
-                        let center2 = center + Vector3::new(0.0, Material::random_float_range(0.0..0.5), 0.0);
-                        hittable_list.push(Sphere::new_moving(center, center2, 0.2, material));
+                        // let center2 = center + Vector3::new(0.0, Material::random_float_range(0.0..0.5), 0.0);
+                        // hittable_list.add(Arc::new(Sphere::new_moving(center, center2, 0.2, material)));
+                        hittable_list.add(Arc::new(Sphere::new_stationary(center, 0.2, material)));
                     } else if choose_material < 0.95 {
                         // metal
                         let albedo = Color::random_range(0.5..1.0);
                         let fuzz = Material::random_float_range(0.0..0.5);
                         material = Material::Metal(albedo, fuzz);
-                        hittable_list.push(Sphere::new_stationary(center, 0.2, material));
+                        hittable_list.add(Arc::new(Sphere::new_stationary(center, 0.2, material)));
                     } else {
                         // glass
                         material = Material::Dielectric(1.5);
-                        hittable_list.push(Sphere::new_stationary(center, 0.2, material));
+                        hittable_list.add(Arc::new(Sphere::new_stationary(center, 0.2, material)));
                     }
                 }
             }
         }
 
-        hittable_list.push(Sphere::new_stationary(
+        hittable_list.add(Arc::new(Sphere::new_stationary(
             Vector3::new(0.0, 1.0, 0.0),
             1.0,
             Material::Dielectric(1.5),
-        ));
+        )));
 
-        hittable_list.push(Sphere::new_stationary(
+        hittable_list.add(Arc::new(Sphere::new_stationary(
             Vector3::new(-4.0, 1.0, 0.0),
             1.0,
             Material::Lambertian(Color::new(0.4, 0.2, 0.1)),
-        ));
+        )));
 
-        hittable_list.push(Sphere::new_stationary(
+        hittable_list.add(Arc::new(Sphere::new_stationary(
             Vector3::new(4.0, 1.0, 0.0),
             1.0,
             Material::Metal(Color::new(0.4, 0.4, 0.4), 0.025),
-        ));
+        )));
+
+        let list = HittableList::new_from_list(Arc::new(BvhNode::new_from_list(hittable_list)));
+        // let list = hittable_list;
 
         Scene {
-            hittable_list,
+            hittable_list: list,
             camera: Camera::init(
                 CameraDefaults {
                     samples_per_pixel: 1,
@@ -97,23 +88,24 @@ impl Scene {
         }
     }
     
-    pub fn get_sphere_position(&mut self, sphere_id : Option<usize>) -> Vector3<f64> {
-        let sphere_id = match sphere_id {
-            Some(id) => id,
-            None => 1,
-        };
+    pub fn _get_sphere_position(&mut self, _sphere_id : Option<usize>) -> Vector3<f64> {
+        // let sphere_id = match sphere_id {
+        //     Some(id) => id,
+        //     None => 1,
+        // };
 
-        self.hittable_list[sphere_id].center1
+        // self.hittable_list.spheres[sphere_id].get_sphere_center(0.0)
+        Vector3::new(0.0, 0.0, 0.0)
     }
 
-    pub fn set_sphere_position(&mut self, position: Vector3<f64>, sphere_id : Option<usize>) {
-        let sphere_id = match sphere_id {
-            Some(id) => id,
-            None => 1,
-        };
+    pub fn _set_sphere_position(&mut self, _position: Vector3<f64>, _sphere_id : Option<usize>) {
+        // let sphere_id = match sphere_id {
+        //     Some(id) => id,
+        //     None => 1,
+        // };
 
-        self.hittable_list[sphere_id].center1 = position;
+        // self.hittable_list.spheres[sphere_id]._set_sphere_center(position);
     }
 }
 
-pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new()));
+pub static SCENE: Lazy<Scene> = Lazy::new(|| Scene::new());

@@ -2,12 +2,12 @@ use minifb::{Key, Window};
 
 use crate::scene::Scene;
 
-pub fn check_input(window: &Window, scene: &mut Scene) -> bool {
+pub fn _check_input(window: &Window, scene: &mut Scene) -> bool {
     let pressed_keys = window.get_keys();
-    move_camera(&pressed_keys, scene, 0.25) || move_sphere(&pressed_keys, scene, 0.25)
+    _move_camera(&pressed_keys, scene, 0.25) || _move_sphere(&pressed_keys, scene, 0.25)
 }
 
-fn move_camera(pressed_keys: &Vec<Key>, scene: &mut Scene, speed: f64) -> bool {
+fn _move_camera(pressed_keys: &Vec<Key>, scene: &mut Scene, speed: f64) -> bool {
     let mut camera = scene.camera;
 
     let lookfrom = &mut camera.defaults.lookfrom;
@@ -32,13 +32,13 @@ fn move_camera(pressed_keys: &Vec<Key>, scene: &mut Scene, speed: f64) -> bool {
         }
     }
 
-    camera.update_camera(scene);
+    camera._update_camera(scene);
 
     is_key_pressed
 }
 
-fn move_sphere(pressed_keys: &Vec<Key>, scene: &mut Scene, speed: f64) -> bool {
-    let mut sphere_center = scene.get_sphere_position(None);
+fn _move_sphere(pressed_keys: &Vec<Key>, scene: &mut Scene, speed: f64) -> bool {
+    let mut sphere_center = scene._get_sphere_position(None);
 
     let mut is_key_pressed = false;
     for t in pressed_keys {
@@ -55,7 +55,7 @@ fn move_sphere(pressed_keys: &Vec<Key>, scene: &mut Scene, speed: f64) -> bool {
         }
     }
 
-    scene.set_sphere_position(sphere_center, None);
+    scene._set_sphere_position(sphere_center, None);
 
     is_key_pressed
 }

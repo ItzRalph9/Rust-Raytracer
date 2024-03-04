@@ -1,8 +1,10 @@
+use std::f64::consts::PI;
+
 use nalgebra::Vector3;
 
 use crate::{hit_object::HitObject, material::Material, ray::Ray, interval::Interval, hittable::Hittable, aabb::Aabb, vector3::Vector3Extensions};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Sphere {
     center1: Vector3<f64>,
     radius: f64,
@@ -54,6 +56,22 @@ impl Sphere {
     pub fn _set_sphere_center(&mut self, center: Vector3<f64>) {
         self.center1 = center;
     }
+
+    fn get_sphere_uv(&self, p: Vector3<f64>) -> (f64, f64) {
+        // p: a given point on the sphere of radius one, centered at the origin.
+        // u: returned value [0,1] of angle around the Y axis from X=-1.
+        // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+        //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+        //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+        //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+
+        let theta = (-p.y).acos();
+        let phi = (-p.z).atan2(p.x) + PI;
+
+        let u = phi / (2.0 * PI);
+        let v = theta / PI;
+        (u, v)
+    }
 }
 
 impl Hittable for Sphere {
@@ -84,8 +102,11 @@ impl Hittable for Sphere {
 
         let t = root;
         let hit_point = ray.calculate_hit_position(t);
-    
-        Some(HitObject::new(hit_point, ray, self.calculate_normal(hit_point), self.material, t))
+        let outward_normal = self.calculate_normal(hit_point);
+
+        let (u, v) = self.get_sphere_uv(outward_normal);
+
+        Some(HitObject::new(hit_point, ray, outward_normal, self.material.clone(), t, u, v))
     }
 
     fn get_bounding_box(&self) -> Aabb {

@@ -1,10 +1,10 @@
 use rand::prelude::*;
 
-use crate::{color::Color, hit_object::HitObject, ray::Ray, vector3::Vector3Extensions};
+use crate::{color::Color, hit_object::HitObject, ray::Ray, texture::Texture, vector3::Vector3Extensions};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum Material {
-    Lambertian(Color),
+    Lambertian(Texture),
     Metal(Color, f64),
     Dielectric(f64),
 }
@@ -21,7 +21,7 @@ impl Material {
                 }
                 
                 let scattered = Ray::new(hit_object.point, scatter_direction, r_in.time);
-                let attenuation = *albedo;
+                let attenuation = albedo.value(hit_object.u, hit_object.v, hit_object.point);
 
                 Some((attenuation, scattered))
             },

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use nalgebra::Vector3;
 use once_cell::sync::Lazy;
 
-use crate::{bvh::BvhNode, camera::{Camera, CameraDefaults}, color::Color, hittable_list::HittableList, material::Material, sphere::Sphere};
+use crate::{bvh::BvhNode, camera::{Camera, CameraDefaults}, color::Color, hittable_list::HittableList, image::Image, material::Material, sphere::Sphere, texture::Texture};
 
 pub struct Scene {
     pub hittable_list: HittableList,
@@ -11,13 +11,43 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn new() -> Self {
+    pub fn new(scene: usize) -> Self {
+        match scene {
+            1 => Self::random_spheres(),
+            2 => Self::two_spheres(),
+            3 => Self::earth(),
+            _ => Self::random_spheres(),
+        }
+    }
+    
+    pub fn _get_sphere_position(&mut self, _sphere_id : Option<usize>) -> Vector3<f64> {
+        // let sphere_id = match sphere_id {
+        //     Some(id) => id,
+        //     None => 1,
+        // };
+
+        // self.hittable_list.spheres[sphere_id].get_sphere_center(0.0)
+        Vector3::new(0.0, 0.0, 0.0)
+    }
+
+    pub fn _set_sphere_position(&mut self, _position: Vector3<f64>, _sphere_id : Option<usize>) {
+        // let sphere_id = match sphere_id {
+        //     Some(id) => id,
+        //     None => 1,
+        // };
+
+        // self.hittable_list.spheres[sphere_id]._set_sphere_center(position);
+    }
+
+    fn random_spheres() -> Self {
         let mut hittable_list = HittableList::new();
+
+        let texture = Texture::Checkered(0.32, Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9));
 
         hittable_list.add(Arc::new(Sphere::new_stationary(
             Vector3::new(0.0, -1000.0, 0.0),
             1000.0,
-            Material::Lambertian(Color::new(0.5, 0.5, 0.5)),
+            Material::Lambertian(texture),
         )));
         
         for a in (-5..5).step_by(3) {
@@ -30,11 +60,11 @@ impl Scene {
     
                     if choose_material < 0.8 {
                         // diffuse
-                        let albedo = Color::random() * Color::random();
+                        let albedo = Texture::SolidColor(Color::random() * Color::random());
                         material = Material::Lambertian(albedo);
-                        // let center2 = center + Vector3::new(0.0, Material::random_float_range(0.0..0.5), 0.0);
-                        // hittable_list.add(Arc::new(Sphere::new_moving(center, center2, 0.2, material)));
-                        hittable_list.add(Arc::new(Sphere::new_stationary(center, 0.2, material)));
+                        let center2 = center + Vector3::new(0.0, Material::random_float_range(0.0..0.5), 0.0);
+                        hittable_list.add(Arc::new(Sphere::new_moving(center, center2, 0.2, material)));
+                        // hittable_list.add(Arc::new(Sphere::new_stationary(center, 0.2, material)));
                     } else if choose_material < 0.95 {
                         // metal
                         let albedo = Color::random_range(0.5..1.0);
@@ -59,7 +89,7 @@ impl Scene {
         hittable_list.add(Arc::new(Sphere::new_stationary(
             Vector3::new(-4.0, 1.0, 0.0),
             1.0,
-            Material::Lambertian(Color::new(0.4, 0.2, 0.1)),
+            Material::Lambertian(Texture::SolidColor(Color::new(0.4, 0.2, 0.1))),
         )));
 
         hittable_list.add(Arc::new(Sphere::new_stationary(
@@ -68,8 +98,8 @@ impl Scene {
             Material::Metal(Color::new(0.4, 0.4, 0.4), 0.025),
         )));
 
-        let list = HittableList::new_from_list(Arc::new(BvhNode::new_from_list(hittable_list)));
-        // let list = hittable_list;
+        // let list = HittableList::new_from_list(Arc::new(BvhNode::new_from_list(hittable_list)));
+        let list = hittable_list;
 
         Scene {
             hittable_list: list,
@@ -87,25 +117,56 @@ impl Scene {
             ),
         }
     }
-    
-    pub fn _get_sphere_position(&mut self, _sphere_id : Option<usize>) -> Vector3<f64> {
-        // let sphere_id = match sphere_id {
-        //     Some(id) => id,
-        //     None => 1,
-        // };
 
-        // self.hittable_list.spheres[sphere_id].get_sphere_center(0.0)
-        Vector3::new(0.0, 0.0, 0.0)
+    fn two_spheres() -> Self {
+        let mut hittable_list = HittableList::new();
+    
+        let checker = Texture::Checkered(0.32, Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9));
+    
+        hittable_list.add(Arc::new(Sphere::new_stationary(Vector3::new(0.0, -10.0, 0.0), 10.0, Material::Lambertian(checker.clone()))));
+        hittable_list.add(Arc::new(Sphere::new_stationary(Vector3::new(0.0, 10.0, 0.0), 10.0, Material::Lambertian(checker.clone()))));
+    
+        Scene {
+            hittable_list,
+            camera: Camera::init(
+                CameraDefaults {
+                    samples_per_pixel: 1,
+                    max_depth: 50,
+                    vertical_fov: 20.0,
+                    lookfrom: Vector3::new(13.0, 2.0, 3.0),
+                    lookat : Vector3::new(0.0, 0.0, 0.0),
+                    vup: Vector3::new(0.0, 1.0, 0.0),
+                    defocus_angle: 0.0,
+                    focus_distance: 10.0,
+                }
+            ),
+        }
     }
 
-    pub fn _set_sphere_position(&mut self, _position: Vector3<f64>, _sphere_id : Option<usize>) {
-        // let sphere_id = match sphere_id {
-        //     Some(id) => id,
-        //     None => 1,
-        // };
-
-        // self.hittable_list.spheres[sphere_id]._set_sphere_center(position);
+    fn earth() -> Self {
+        let mut hittable_list = HittableList::new();
+    
+        let texture = Texture::Image(Image::load_image("images/earth_true_color.png"));
+        let surface = Material::Lambertian(texture);
+    
+        hittable_list.add(Arc::new(Sphere::new_stationary(Vector3::new(0.0, 0.0, 0.0), 2.0, surface)));
+    
+        Scene {
+            hittable_list,
+            camera: Camera::init(
+                CameraDefaults {
+                    samples_per_pixel: 1,
+                    max_depth: 50,
+                    vertical_fov: 20.0,
+                    lookfrom: Vector3::new(0.0, 0.0, 12.0),
+                    lookat : Vector3::new(0.0, 0.0, 0.0),
+                    vup: Vector3::new(0.0, 1.0, 0.0),
+                    defocus_angle: 0.0,
+                    focus_distance: 10.0,
+                }
+            ),
+        }
     }
 }
 
-pub static SCENE: Lazy<Scene> = Lazy::new(|| Scene::new());
+pub static SCENE: Lazy<Scene> = Lazy::new(|| Scene::new(3));

@@ -16,6 +16,8 @@ mod aabb;
 mod hittable_list;
 mod hittable;
 mod bvh;
+mod texture;
+mod image;
 
 extern crate minifb;
 

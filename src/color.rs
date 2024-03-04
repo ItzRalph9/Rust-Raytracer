@@ -20,6 +20,14 @@ impl Color {
         (r << 16) | (g << 8 ) | b
     }
 
+    pub fn from_u8(r: u8, g: u8, b: u8) -> Color {
+        let r = r as f64 / 255.0;
+        let g = g as f64 / 255.0;
+        let b = b as f64 / 255.0;
+
+        Color::new(r, g, b)
+    }
+
     pub fn linear_to_gamma(&self) -> Color {
         Color::new(
             self.r.sqrt(),

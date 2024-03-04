@@ -31,11 +31,6 @@ impl Texture {
                 }
             }
             Texture::Image(image) => {
-                // If we have no texture data, then return solid cyan as a debugging aid.
-                if image.height() <= 0 {
-                    return Color::new(0.0, 1.0, 1.0);
-                }
-
                 let u = u.clamp(0.0, 1.0);
                 let v = 1.0 - v.clamp(0.0, 1.0);  // Flip V to image coordinates
 

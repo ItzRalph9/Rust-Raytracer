@@ -22,7 +22,8 @@ impl FpsCounter {
         self.frame_count += 1;
 
         if frame_start.duration_since(self.last_second) >= Duration::from_secs(1) {
-            self.fps_text = format!("FPS: {}", self.frame_count);
+            let frame_duration_ms = frame_start.duration_since(self.last_second).as_millis();
+            self.fps_text = format!("frame time: {} ms", frame_duration_ms);
             
             self.frame_count = 0;
             self.last_second = Instant::now();

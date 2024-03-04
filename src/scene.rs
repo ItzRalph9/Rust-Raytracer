@@ -3,7 +3,7 @@ use std::sync::Arc;
 use nalgebra::Vector3;
 use once_cell::sync::Lazy;
 
-use crate::{bvh::BvhNode, camera::{Camera, CameraDefaults}, color::Color, hittable_list::HittableList, image::Image, material::Material, sphere::Sphere, texture::Texture};
+use crate::{camera::{Camera, CameraDefaults}, color::Color, hittable_list::HittableList, image::Image, material::Material, sphere::Sphere, texture::Texture};
 
 pub struct Scene {
     pub hittable_list: HittableList,
@@ -60,11 +60,13 @@ impl Scene {
     
                     if choose_material < 0.8 {
                         // diffuse
-                        let albedo = Texture::SolidColor(Color::random() * Color::random());
-                        material = Material::Lambertian(albedo);
-                        let center2 = center + Vector3::new(0.0, Material::random_float_range(0.0..0.5), 0.0);
-                        hittable_list.add(Arc::new(Sphere::new_moving(center, center2, 0.2, material)));
-                        // hittable_list.add(Arc::new(Sphere::new_stationary(center, 0.2, material)));
+                        // let albedo = Texture::SolidColor(Color::random() * Color::random());
+                        // material = Material::Lambertian(albedo);
+                        let texture = Texture::Image(Image::load_image("assets/earth_low_res.jpg"));
+                        let material = Material::Lambertian(texture);
+                        // let center2 = center + Vector3::new(0.0, Material::random_float_range(0.0..0.5), 0.0);
+                        // hittable_list.add(Arc::new(Sphere::new_moving(center, center2, 0.2, material)));
+                        hittable_list.add(Arc::new(Sphere::new_stationary(center, 0.2, material)));
                     } else if choose_material < 0.95 {
                         // metal
                         let albedo = Color::random_range(0.5..1.0);
@@ -146,7 +148,7 @@ impl Scene {
     fn earth() -> Self {
         let mut hittable_list = HittableList::new();
     
-        let texture = Texture::Image(Image::load_image("images/earth_true_color.png"));
+        let texture = Texture::Image(Image::load_image("assets/earth_low_res.png"));
         let surface = Material::Lambertian(texture);
     
         hittable_list.add(Arc::new(Sphere::new_stationary(Vector3::new(0.0, 0.0, 0.0), 2.0, surface)));
@@ -169,4 +171,4 @@ impl Scene {
     }
 }
 
-pub static SCENE: Lazy<Scene> = Lazy::new(|| Scene::new(3));
+pub static SCENE: Lazy<Scene> = Lazy::new(|| Scene::new(1));

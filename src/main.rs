@@ -38,9 +38,10 @@ fn main() {
 
     // Event loop
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        buffer = render::render(buffer);
+        let reset_accumulation;
+        (buffer, reset_accumulation) = render::render(&window, buffer);
 
-        let clamped_buffer = render::get_clamped_buffer(&buffer, &mut fps_counter, &mut frame_index);
+        let clamped_buffer = render::get_clamped_buffer(&buffer, &mut fps_counter, &mut frame_index, reset_accumulation);
         
         window.update_with_buffer(&clamped_buffer, WIDTH, HEIGHT).unwrap();
     }

@@ -754,7 +754,6 @@ name = "rust"
 version = "0.1.0"
 dependencies = [
  "image",
- "lazy_static",
  "minifb",
  "nalgebra",
  "num_cpus",

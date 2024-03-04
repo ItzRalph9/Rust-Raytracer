@@ -32,11 +32,11 @@ impl Interval {
         Interval::new(f64::NEG_INFINITY, f64::INFINITY)
     }
 
-    pub fn size(&self) -> f64 {
+    pub fn _size(&self) -> f64 {
         self.max - self.min
     }
     
-    fn expand(&self, delta: f64) -> Self {
+    fn _expand(&self, delta: f64) -> Self {
         let padding = delta / 2.0;
         Interval::new(self.min - padding, self.max + padding)
     }

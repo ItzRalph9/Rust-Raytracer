@@ -2,7 +2,7 @@ use std::f64::consts::PI;
 
 use nalgebra::Vector3;
 
-use crate::{hit_object::HitObject, material::Material, ray::Ray, interval::Interval, hittable::Hittable, aabb::Aabb, vector3::Vector3Extensions};
+use crate::{aabb::Aabb, hit_object::HitObject, hittable::HittableTrait, interval::Interval, material::Material, ray::Ray, vector3::Vector3Extensions};
 
 #[derive(Debug, Clone)]
 pub struct Sphere {
@@ -53,7 +53,7 @@ impl Sphere {
         self.center1 + time * self.center_vec
     }
 
-    pub fn _set_sphere_center(&mut self, center: Vector3<f64>) {
+    pub fn set_sphere_center(&mut self, center: Vector3<f64>) {
         self.center1 = center;
     }
 
@@ -74,7 +74,7 @@ impl Sphere {
     }
 }
 
-impl Hittable for Sphere {
+impl HittableTrait for Sphere {
     fn hit(&self, ray: Ray, ray_t: Interval) -> Option<HitObject> {
         let mut center = self.center1;
         if self.is_moving {

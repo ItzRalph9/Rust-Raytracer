@@ -1,14 +1,22 @@
 use core::f64;
 
+use minifb::Window;
 use rayon::prelude::*;
 
+use crate::check_input as input;
 use crate::fps_counter::FpsCounter;
 use crate::{color::Color, ray::Ray, scene::Scene, scene::SCENE, interval::Interval};
 
 use crate::constants::{WIDTH, HEIGHT};
 
-pub fn render(mut buffer: Vec<Color>) -> Vec<Color> {
-    let scene = &SCENE;
+pub fn render(window: &Window, mut buffer: Vec<Color>) -> (Vec<Color>, bool) {
+    let reset_accumulation = input::check_input(&window, &mut SCENE.write().unwrap());
+    
+    if reset_accumulation {
+        buffer = vec![Color::new(0.0, 0.0, 0.0); WIDTH * HEIGHT];
+    }
+
+    let scene = SCENE.read().unwrap();
     
     // Parallelize rendering using Rayon
     buffer
@@ -20,7 +28,7 @@ pub fn render(mut buffer: Vec<Color>) -> Vec<Color> {
             }
         });
 
-    buffer
+    (buffer, reset_accumulation)
 }
 
 fn render_pixel(row: &mut[Color], i: usize, j: usize, scene: &Scene) {
@@ -63,7 +71,11 @@ fn write_color(pixel: &mut Color, mut color: Color, samples_per_pixel: usize) {
     *pixel += color;
 }
 
-pub fn get_clamped_buffer(buffer: &Vec<Color>, fps_counter: &mut FpsCounter, frame_index: &mut usize) -> Vec<u32> {
+pub fn get_clamped_buffer(buffer: &Vec<Color>, fps_counter: &mut FpsCounter, frame_index: &mut usize, reset_accumulation: bool) -> Vec<u32> {
+    if reset_accumulation {
+        *frame_index = 1;
+    }
+    
     let mut accumulator: Vec<u32> = vec![0; WIDTH * HEIGHT];
     accumulator.iter_mut().zip(buffer.iter()).for_each(|(acc_pixel, buffer_pixel)| {
         let color = *buffer_pixel * (1.0 / *frame_index as f64);

@@ -1,4 +1,5 @@
-use crate::{aabb::Aabb, hit_object::HitObject, interval::Interval, ray::Ray, sphere::Sphere};
+use crate::basic_lib::*;
+use crate::sphere::Sphere;
 
 pub trait HittableTrait: Sync + Send {
     fn hit(&self, ray: Ray, ray_t: Interval) -> Option<HitObject>;
@@ -6,9 +7,10 @@ pub trait HittableTrait: Sync + Send {
     fn get_bounding_box(&self) -> Aabb;
 }
 
+#[non_exhaustive]
 #[derive(Debug, Clone)]
 pub enum Hittable {
-    Sphere(Box<Sphere>),
+    Sphere(Sphere),
     // Bvh(Box<BvhNode>)
 }
 

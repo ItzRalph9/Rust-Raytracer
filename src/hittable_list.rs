@@ -1,4 +1,5 @@
-use crate::{aabb::Aabb, hit_object::HitObject, hittable::Hittable, interval::Interval, ray::Ray};
+use crate::basic_lib::*;
+use crate::hittable::Hittable;
 
 pub struct HittableList {
     pub objects: Vec<Hittable>,

@@ -1,16 +1,18 @@
 use nalgebra::Vector3;
 
-use crate::{color::Color, image::Image};
+use crate::{color::Color, image::Image, perlin::Perlin};
+
 
 #[derive(Debug, Clone)]
 pub enum Texture {
     SolidColor(Color),
     Checkered(f64, Color, Color),
     Image(Image),
+    Perlin(Perlin, f64)
 }
 
 impl Texture {
-    pub fn value(&self, u: f64, v: f64, point: Vector3<f64>) -> Color {
+    pub fn value(&self, u: f64, v: f64, p: Vector3<f64>) -> Color {
         match self {
             Texture::SolidColor(color) => {
                 *color
@@ -18,9 +20,9 @@ impl Texture {
             Texture::Checkered(scale, even, odd) => {
                 let inv_scale = 1.0 / scale;
 
-                let x_integer = (inv_scale * point.x).floor();
-                let y_integer = (inv_scale * point.y).floor();
-                let z_integer = (inv_scale * point.z).floor();
+                let x_integer = (inv_scale * p.x).floor();
+                let y_integer = (inv_scale * p.y).floor();
+                let z_integer = (inv_scale * p.z).floor();
 
                 let is_even = (x_integer + y_integer + z_integer) % 2.0 == 0.0;
 
@@ -40,6 +42,12 @@ impl Texture {
 
                 pixel
             }
+            Texture::Perlin(perlin_noise, scale) => {
+                let s = *scale * p;
+
+                let sin = (s.z + 10.0 * perlin_noise.turbulance(s, None)).sin();
+                Color::new(1.0, 1.0, 1.0) * 0.5 * (1.0 + sin)
+            },
         }
     }
 }

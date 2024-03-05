@@ -18,6 +18,8 @@ mod hittable;
 mod bvh;
 mod texture;
 mod image;
+mod perlin;
+mod basic_lib;
 
 extern crate minifb;
 

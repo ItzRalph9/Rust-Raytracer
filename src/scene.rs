@@ -3,12 +3,12 @@ use std::sync::RwLock;
 use nalgebra::Vector3;
 use once_cell::sync::Lazy;
 
-use crate::{camera::{Camera, CameraDefaults}, color::Color, hittable_list::HittableList, image::Image, material::Material, perlin::Perlin, sphere::Sphere};
+use crate::{camera::{Camera, CameraDefaults}, color::Color, hittable_list::HittableList, image::Image, material::Material, perlin::Perlin, sphere::Sphere, quad::Quad};
 use crate::material::Material::*;
 use crate::texture::Texture::*;
 use crate::hittable::Hittable::*;
 
-pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new(4)));
+pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new(5)));
 
 pub struct Scene {
     pub hittable_list: HittableList,
@@ -22,19 +22,20 @@ impl Scene {
             2 => Self::two_spheres(),
             3 => Self::earth(),
             4 => Self::two_perlin_spheres(),
+            5 => Self::quads(),
             _ => Self::random_spheres(),
         }
     }
     
-    pub fn get_sphere_position(&mut self, sphere_id : Option<usize>) -> Result<Vector3<f64>, ()> {
+    pub fn get_sphere_position(&mut self, sphere_id : Option<usize>) -> Vector3<f64> {
         let last_item_in_scene = self.hittable_list.objects.len() - 1;
         let sphere_id = sphere_id.unwrap_or(last_item_in_scene);
 
         let hittable = &self.hittable_list.objects[sphere_id];
 
         match &hittable {
-            Sphere(sphere) => Ok(sphere.get_sphere_center(0.0)),
-            _ => panic!()
+            Sphere(sphere) => sphere.get_sphere_center(0.0),
+            _ => Vector3::new(0.0, 0.0, 0.0),
         }
     }
 
@@ -220,6 +221,40 @@ impl Scene {
                     max_depth: 50,
                     vertical_fov: 20.0,
                     lookfrom: Vector3::new(13.0, 2.0, 3.0),
+                    lookat : Vector3::new(0.0, 0.0, 0.0),
+                    vup: Vector3::new(0.0, 1.0, 0.0),
+                    defocus_angle: 0.0,
+                    focus_distance: 10.0,
+                }
+            ),
+        }
+    }
+
+    fn quads() -> Self {
+        let mut hittable_list = HittableList::new();
+    
+        // Materials
+        let left_red     = Lambertian(SolidColor(Color::new(1.0, 0.2, 0.2)));
+        let back_green   = Lambertian(SolidColor(Color::new(0.2, 1.0, 0.2)));
+        let right_blue   = Lambertian(SolidColor(Color::new(0.2, 0.2, 1.0)));
+        let upper_orange = Lambertian(SolidColor(Color::new(1.0, 0.5, 0.0)));
+        let lower_teal   = Lambertian(SolidColor(Color::new(0.2, 0.8, 0.8)));
+    
+        // Quads
+        hittable_list.add(Quad(Quad::new(Vector3::new(-3.0, -2.0, 5.0), Vector3::new(0.0, 0.0,-4.0), Vector3::new(0.0, 4.0, 0.0), left_red)));
+        hittable_list.add(Quad(Quad::new(Vector3::new(-2.0, -2.0, 0.0), Vector3::new(4.0, 0.0, 0.0), Vector3::new(0.0, 4.0, 0.0), back_green)));
+        hittable_list.add(Quad(Quad::new(Vector3::new( 3.0, -2.0, 1.0), Vector3::new(0.0, 0.0, 4.0), Vector3::new(0.0, 4.0, 0.0), right_blue)));
+        hittable_list.add(Quad(Quad::new(Vector3::new(-2.0,  3.0, 1.0), Vector3::new(4.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 4.0), upper_orange)));
+        hittable_list.add(Quad(Quad::new(Vector3::new(-2.0, -3.0, 5.0), Vector3::new(4.0, 0.0, 0.0), Vector3::new(0.0, 0.0,-4.0), lower_teal)));
+        
+        Scene {
+            hittable_list,
+            camera: Camera::init(
+                CameraDefaults {
+                    samples_per_pixel: 1,
+                    max_depth: 50,
+                    vertical_fov: 80.0,
+                    lookfrom: Vector3::new(0.0, 0.0, 9.0),
                     lookat : Vector3::new(0.0, 0.0, 0.0),
                     vup: Vector3::new(0.0, 1.0, 0.0),
                     defocus_angle: 0.0,

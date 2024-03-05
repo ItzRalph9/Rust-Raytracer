@@ -16,7 +16,7 @@ impl Interval {
         }
     }
 
-    pub fn _contains(&self, value: f64) -> bool {
+    pub fn contains(&self, value: f64) -> bool {
         self.min <= value && value <= self.max
     }
 
@@ -32,11 +32,11 @@ impl Interval {
         Interval::new(f64::NEG_INFINITY, f64::INFINITY)
     }
 
-    pub fn _size(&self) -> f64 {
+    pub fn size(&self) -> f64 {
         self.max - self.min
     }
     
-    fn _expand(&self, delta: f64) -> Self {
+    pub fn expand(&self, delta: f64) -> Self {
         let padding = delta / 2.0;
         Interval::new(self.min - padding, self.max + padding)
     }

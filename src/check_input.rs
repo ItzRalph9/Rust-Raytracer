@@ -38,7 +38,7 @@ fn move_camera(pressed_keys: &Vec<Key>, scene: &mut Scene, speed: f64) -> bool {
 }
 
 fn move_sphere(pressed_keys: &Vec<Key>, scene: &mut Scene, speed: f64) -> bool {
-    let mut sphere_center = scene.get_sphere_position(None).expect("This hittable is not a sphere");
+    let mut sphere_center = scene.get_sphere_position(None);
 
     let mut is_key_pressed = false;
     for key in pressed_keys {

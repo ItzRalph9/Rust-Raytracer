@@ -20,6 +20,7 @@ mod texture;
 mod image;
 mod perlin;
 mod basic_lib;
+mod quad;
 
 extern crate minifb;
 
@@ -27,7 +28,7 @@ use color::Color;
 use fps_counter::FpsCounter;
 use minifb::{Key, Window, WindowOptions};
 
-use constants::{WIDTH, HEIGHT};
+use constants::{WIDTH, HEIGHT}; 
 
 fn main() {
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions::default())

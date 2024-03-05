@@ -85,7 +85,7 @@ impl Camera {
         Ray::new(ray_origin, ray_direction, ray_time)
     }
     
-    fn degrees_to_radians(degrees: f64) -> f64 {
+    pub fn degrees_to_radians(degrees: f64) -> f64 {
         degrees * PI / 180.0
     }
 

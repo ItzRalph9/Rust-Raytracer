@@ -3,7 +3,8 @@ use std::sync::RwLock;
 use nalgebra::Vector3;
 use once_cell::sync::Lazy;
 
-use crate::{camera::{Camera, CameraDefaults}, color::Color, hittable_list::HittableList, image::Image, material::Material, perlin::Perlin, sphere::Sphere, quad::Quad};
+use crate::{camera::{Camera, CameraDefaults}, color::Color, image::Image, material::Material, perlin::Perlin};
+use crate::{hittable_list::HittableList, quad::Quad, rotate_y::RotateY, translate::Translate, sphere::Sphere};
 use crate::material::Material::*;
 use crate::texture::Texture::*;
 use crate::hittable::Hittable::*;
@@ -313,6 +314,24 @@ impl Scene {
         hittable_list.add(Quad(Quad::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 555.0), white.clone())));
         hittable_list.add(Quad(Quad::new(Vector3::new(555.0, 555.0, 555.0), Vector3::new(-555.0, 0.0, 0.0), Vector3::new(0.0, 0.0,-555.0), white.clone())));
         hittable_list.add(Quad(Quad::new(Vector3::new(0.0, 0.0, 555.0), Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), white.clone())));
+
+        let box1 = Quad::create_box(Vector3::new(0.0, 0.0, 0.0), Vector3::new(165.0, 330.0, 165.0), white.clone());
+        for side in box1.objects {
+            let side = RotateY::new(side, 15.0);
+            let side = RotateY(Box::new(side));
+            let side = Translate::new(side, Vector3::new(265.0, 0.0, 295.0));
+            let side = Translate(Box::new(side));
+            hittable_list.add(side)
+        }
+
+        let box2 = Quad::create_box(Vector3::new(0.0, 0.0, 0.0), Vector3::new(165.0, 165.0, 165.0), white.clone());
+        for side in box2.objects {
+            let side = RotateY::new(side, -18.0);
+            let side = RotateY(Box::new(side));
+            let side = Translate::new(side, Vector3::new(130.0, 0.0, 65.0));
+            let side = Translate(Box::new(side));
+            hittable_list.add(side)
+        }
 
         Scene {
             hittable_list,

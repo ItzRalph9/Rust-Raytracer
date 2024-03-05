@@ -21,6 +21,8 @@ mod image;
 mod perlin;
 mod basic_lib;
 mod quad;
+mod translate;
+mod rotate_y;
 
 extern crate minifb;
 

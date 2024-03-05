@@ -1,6 +1,7 @@
 use crate::basic_lib::*;
 use crate::hittable::Hittable;
 
+#[derive(Debug, Clone)]
 pub struct HittableList {
     pub objects: Vec<Hittable>,
     bounding_box: Aabb,
@@ -24,6 +25,12 @@ impl HittableList {
     pub fn add(&mut self, object: Hittable) {
         self.bounding_box = Aabb::new_from_box(self.bounding_box, object.get_bounding_box());
         self.objects.push(object);
+    }
+
+    pub fn add_list(&mut self, list: HittableList) {
+        for object in list.objects {
+            self.add(object);
+        }
     }
 
     fn _get_bounding_box(&self) -> Aabb {

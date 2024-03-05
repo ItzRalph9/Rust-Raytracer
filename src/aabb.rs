@@ -4,9 +4,9 @@ use crate::{interval::Interval, ray::Ray};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Aabb {
-    x: Interval,
-    y: Interval,
-    z: Interval,
+    pub x: Interval,
+    pub y: Interval,
+    pub z: Interval,
 }
 
 impl Aabb {
@@ -84,5 +84,20 @@ impl Aabb {
         let new_z = if self.z.size() >= delta { self.z } else { self.z.expand(delta) };
 
         Aabb::new(new_x, new_y, new_z)
+    }
+}
+
+impl std::ops::Add<Vector3<f64>> for Aabb {
+    type Output = Aabb;
+
+    fn add(self, offset: Vector3<f64>) -> Aabb {
+        Self::new(self.x + offset.x, self.y + offset.y, self.z + offset.z)
+    }
+}
+impl std::ops::Add<Aabb> for Vector3<f64> {
+    type Output = Aabb;
+
+    fn add(self, offset: Aabb) -> Aabb {
+        offset + self
     }
 }

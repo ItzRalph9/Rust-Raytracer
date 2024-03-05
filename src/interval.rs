@@ -41,3 +41,19 @@ impl Interval {
         Interval::new(self.min - padding, self.max + padding)
     }
 }
+
+impl std::ops::Add<f64> for Interval {
+    type Output = Interval;
+
+    fn add(self, offset: f64) -> Interval {
+        Self::new(self.min + offset, self.max + offset)
+    }
+}
+
+impl std::ops::Add<Interval> for f64 {
+    type Output = Interval;
+
+    fn add(self, offset: Interval) -> Interval {
+        offset + self
+    }
+}

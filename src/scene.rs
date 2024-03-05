@@ -8,7 +8,7 @@ use crate::material::Material::*;
 use crate::texture::Texture::*;
 use crate::hittable::Hittable::*;
 
-pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new(5)));
+pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new(7)));
 
 pub struct Scene {
     pub hittable_list: HittableList,
@@ -23,6 +23,8 @@ impl Scene {
             3 => Self::earth(),
             4 => Self::two_perlin_spheres(),
             5 => Self::quads(),
+            6 => Self::simple_light(),
+            7 => Self::cornell_box(),
             _ => Self::random_spheres(),
         }
     }
@@ -44,7 +46,6 @@ impl Scene {
         let sphere_id = sphere_id.unwrap_or(last_item_in_scene);
 
         if let Sphere(sphere) = &mut self.hittable_list.objects[sphere_id] {
-            // Call set_sphere_center on the mutable reference to sphere
             sphere.set_sphere_center(position);
         }
     }
@@ -126,6 +127,7 @@ impl Scene {
                 CameraDefaults {
                     samples_per_pixel: 1,
                     max_depth: 50,
+                    background: Color::new(0.7, 0.8, 1.0),
                     vertical_fov: 20.0,
                     lookfrom: Vector3::new(15.0, 2.5, 8.0),
                     lookat : Vector3::new(0.0, 0.0, -1.0),
@@ -160,6 +162,7 @@ impl Scene {
                 CameraDefaults {
                     samples_per_pixel: 1,
                     max_depth: 50,
+                    background: Color::new(0.7, 0.8, 1.0),
                     vertical_fov: 20.0,
                     lookfrom: Vector3::new(13.0, 2.0, 3.0),
                     lookat : Vector3::new(0.0, 0.0, 0.0),
@@ -185,6 +188,7 @@ impl Scene {
                 CameraDefaults {
                     samples_per_pixel: 1,
                     max_depth: 50,
+                    background: Color::new(0.7, 0.8, 1.0),
                     vertical_fov: 20.0,
                     lookfrom: Vector3::new(0.0, 0.0, 12.0),
                     lookat : Vector3::new(0.0, 0.0, 0.0),
@@ -199,7 +203,7 @@ impl Scene {
     fn two_perlin_spheres() -> Self {
         let mut hittable_list = HittableList::new();
     
-        let perlin_texture = Perlin(Perlin::new(None), 4.0);
+        let perlin_texture = Perlin(Perlin::new(), 4.0);
 
         hittable_list.add(Sphere(Sphere::new_stationary(
             Vector3::new(0.0, -1000.0, 0.0),
@@ -219,6 +223,7 @@ impl Scene {
                 CameraDefaults {
                     samples_per_pixel: 1,
                     max_depth: 50,
+                    background: Color::new(0.7, 0.8, 1.0),
                     vertical_fov: 20.0,
                     lookfrom: Vector3::new(13.0, 2.0, 3.0),
                     lookat : Vector3::new(0.0, 0.0, 0.0),
@@ -253,6 +258,7 @@ impl Scene {
                 CameraDefaults {
                     samples_per_pixel: 1,
                     max_depth: 50,
+                    background: Color::new(0.7, 0.8, 1.0),
                     vertical_fov: 80.0,
                     lookfrom: Vector3::new(0.0, 0.0, 9.0),
                     lookat : Vector3::new(0.0, 0.0, 0.0),
@@ -263,4 +269,67 @@ impl Scene {
             ),
         }
     }
+
+    fn simple_light() -> Self {
+        let mut hittable_list = HittableList::new();
+    
+        let pertext = Perlin(Perlin::new(), 4.0);
+        hittable_list.add(Sphere(Sphere::new_stationary(Vector3::new(0.0, -1000.0, 0.0), 1000.0, Lambertian(pertext.clone()))));
+        hittable_list.add(Sphere(Sphere::new_stationary(Vector3::new(0.0, 2.0, 0.0), 2.0, Lambertian(pertext.clone()))));
+    
+        let difflight = DiffuseLight(SolidColor(Color::new(20.0, 20.0, 20.0)));
+        hittable_list.add(Quad(Quad::new(Vector3::new(3.0, 1.0, -2.0), Vector3::new(2.0, 0.0, 0.0), Vector3::new(0.0, 2.0, 0.0), difflight.clone())));
+        hittable_list.add(Sphere(Sphere::new_stationary(Vector3::new(0.0, 7.0, 0.0), 2.0, difflight.clone())));
+
+        Scene {
+            hittable_list,
+            camera: Camera::init(
+                CameraDefaults {
+                    samples_per_pixel: 1,
+                    max_depth: 50,
+                    background: Color::new(0.0, 0.0, 0.0),
+                    vertical_fov: 20.0,
+                    lookfrom: Vector3::new(26.0, 3.0, 6.0),
+                    lookat : Vector3::new(0.0, 2.0, 0.0),
+                    vup: Vector3::new(0.0, 1.0, 0.0),
+                    defocus_angle: 0.0,
+                    focus_distance: 10.0,
+                }
+            ),
+        }
+    }
+
+    fn cornell_box() -> Self {
+        let mut hittable_list = HittableList::new();
+    
+        let red   = Lambertian(SolidColor(Color::new(0.65, 0.05, 0.05)));
+        let white = Lambertian(SolidColor(Color::new(0.73, 0.73, 0.73)));
+        let green = Lambertian(SolidColor(Color::new(0.12, 0.45, 0.15)));
+        let light = DiffuseLight(SolidColor(Color::new(15.0, 15.0, 15.0)));
+    
+        hittable_list.add(Quad(Quad::new(Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), Vector3::new(0.0, 0.0, 555.0), green.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), Vector3::new(0.0, 0.0, 555.0), red.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(343.0, 554.0, 332.0), Vector3::new(-130.0, 0.0, 0.0), Vector3::new(0.0, 0.0, -105.0), light.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 555.0), white.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(555.0, 555.0, 555.0), Vector3::new(-555.0, 0.0, 0.0), Vector3::new(0.0, 0.0,-555.0), white.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(0.0, 0.0, 555.0), Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), white.clone())));
+
+        Scene {
+            hittable_list,
+            camera: Camera::init(
+                CameraDefaults {
+                    samples_per_pixel: 1,
+                    max_depth: 50,
+                    background: Color::new(0.0, 0.0, 0.0),
+                    vertical_fov: 40.0,
+                    lookfrom: Vector3::new(278.0, 278.0, -800.0),
+                    lookat : Vector3::new(278.0, 278.0, 0.0),
+                    vup: Vector3::new(0.0, 1.0, 0.0),
+                    defocus_angle: 0.0,
+                    focus_distance: 10.0,
+                }
+            ),
+        }
+    }
+    
 }

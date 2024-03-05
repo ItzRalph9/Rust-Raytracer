@@ -1,3 +1,4 @@
+use nalgebra::Vector3;
 use rand::prelude::*;
 
 use crate::{color::Color, hit_object::HitObject, ray::Ray, texture::Texture, vector3::Vector3Extensions};
@@ -7,6 +8,7 @@ pub enum Material {
     Lambertian(Texture),
     Metal(Color, f64),
     Dielectric(f64),
+    DiffuseLight(Texture),
 }
 
 impl Material {
@@ -60,6 +62,18 @@ impl Material {
                 
                 Some((attenuation, scattered))
             },
+            Material::DiffuseLight(_) => {
+                None
+            },
+        }
+    }
+
+    pub fn emitted(&self, u: f64, v: f64, p: Vector3<f64>) -> Color {
+        match self {
+            Material::DiffuseLight(emit) => {
+                emit.value(u, v, p)
+            },
+            _ => Color::new(0.0, 0.0, 0.0),
         }
     }
 

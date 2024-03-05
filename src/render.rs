@@ -49,24 +49,21 @@ fn ray_color(ray: Ray, depth: usize, scene: &Scene) -> Color {
 
     let interval = Interval::new(0.001, f64::INFINITY);
     if let Some(hit_object) = scene.hittable_list.hit(ray, interval) {
+        let color_from_emission = hit_object.material.emitted(hit_object.u, hit_object.v, hit_object.point);
+        
         if let Some((attenuation, scattered)) = hit_object.material.scatter(ray, &hit_object) {
-            return attenuation * ray_color(scattered, depth-1, scene);
+            let color_from_scatter = attenuation * ray_color(scattered, depth-1, scene);
+            return color_from_emission + color_from_scatter;
         }
-
-        return Color::new(0.0, 0.0, 0.0);
+        
+        return color_from_emission;
     }
 
-    // background
-    let unit_direction = ray.direction.normalize();
-    let a = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+    scene.camera.defaults.background
 }
 
 fn write_color(pixel: &mut Color, mut color: Color, samples_per_pixel: usize) {
     color *= 1.0 / samples_per_pixel as f64;
-
-    color = color.linear_to_gamma();
-    color = color.clamp();
 
     *pixel += color;
 }
@@ -78,7 +75,9 @@ pub fn get_clamped_buffer(buffer: &Vec<Color>, fps_counter: &mut FpsCounter, fra
     
     let mut accumulator: Vec<u32> = vec![0; WIDTH * HEIGHT];
     accumulator.iter_mut().zip(buffer.iter()).for_each(|(acc_pixel, buffer_pixel)| {
-        let color = *buffer_pixel * (1.0 / *frame_index as f64);
+        let mut color = *buffer_pixel * (1.0 / *frame_index as f64);
+        color = color.linear_to_gamma();
+        color = color.clamp();
         *acc_pixel = color.to_u32();
     });
 

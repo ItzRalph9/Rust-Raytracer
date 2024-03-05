@@ -12,8 +12,8 @@ pub struct Perlin {
 }
 
 impl Perlin {
-    pub fn new(point_count: Option<usize>) -> Self {
-        let point_count = point_count.unwrap_or(256);
+    pub fn new() -> Self {
+        let point_count = 256;
 
         let random_vector: Vec<Vector3<f64>> = (0..point_count).map(|_| Vector3::random_float_range(-1.0..1.0).normalize()).collect();
 

@@ -3,8 +3,7 @@ use rand::prelude::*;
 use nalgebra::Vector3;
 
 use crate::constants::{WIDTH, HEIGHT};
-use crate::material::Material;
-use crate::{ray::Ray, scene::Scene};
+use crate::{ray::Ray, scene::Scene, material::Material, color::Color};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Camera {
@@ -79,7 +78,6 @@ impl Camera {
 
         let pixel_sample = pixel_center + self.pixel_sample_square();
 
-        // (defocus_angle <= 0) ? center : defocus_disk_sample()
         let ray_origin = self.defocus_disk_sample();
         let ray_direction = pixel_sample - ray_origin;
         let ray_time = Material::random_float();
@@ -112,6 +110,7 @@ impl Camera {
 pub struct CameraDefaults {
     pub samples_per_pixel: usize,
     pub max_depth: usize,
+    pub background: Color,
     pub vertical_fov: f64, 
     pub lookfrom: Vector3<f64>, 
     pub lookat: Vector3<f64>, 

@@ -1,6 +1,6 @@
 use minifb::{Key, Window};
 
-use crate::scene::Scene;
+use crate::library::scene::Scene;
 
 pub fn check_input(window: &Window, scene: &mut Scene) -> bool {
     let pressed_keys = window.get_keys_pressed(minifb::KeyRepeat::Yes);

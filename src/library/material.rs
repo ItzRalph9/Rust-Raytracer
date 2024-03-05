@@ -1,7 +1,7 @@
 use nalgebra::Vector3;
 use rand::prelude::*;
 
-use crate::{color::Color, hit_object::HitObject, ray::Ray, texture::Texture, vector3::Vector3Extensions};
+use crate::library::{color::Color, hit_object::HitObject, ray::Ray, texture::Texture, vector3::Vector3Extensions};
 
 #[derive(Debug, Clone)]
 pub enum Material {

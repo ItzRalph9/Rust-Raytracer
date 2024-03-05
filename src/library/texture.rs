@@ -1,6 +1,6 @@
 use nalgebra::Vector3;
 
-use crate::{color::Color, image::Image, perlin::Perlin};
+use crate::library::{color::Color, image::Image, perlin::Perlin};
 
 
 #[derive(Debug, Clone)]

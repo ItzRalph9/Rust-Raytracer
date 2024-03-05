@@ -1,7 +1,7 @@
 use nalgebra::Vector3;
 use rand::prelude::*;
 
-use crate::vector3::Vector3Extensions;
+use crate::library::vector3::Vector3Extensions;
 
 #[derive(Debug, Clone)]
 pub struct Perlin {

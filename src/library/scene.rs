@@ -3,11 +3,11 @@ use std::sync::RwLock;
 use nalgebra::Vector3;
 use once_cell::sync::Lazy;
 
-use crate::{camera::{Camera, CameraDefaults}, color::Color, image::Image, material::Material, perlin::Perlin};
-use crate::{hittable_list::HittableList, quad::Quad, rotate_y::RotateY, translate::Translate, sphere::Sphere};
-use crate::material::Material::*;
-use crate::texture::Texture::*;
-use crate::hittable::Hittable::*;
+use crate::library::{camera::{Camera, CameraDefaults}, color::Color, image::Image, material::Material, perlin::Perlin};
+use crate::library::{hittable_list::HittableList, quad::Quad, rotate_y::RotateY, translate::Translate, sphere::Sphere};
+use crate::library::material::Material::*;
+use crate::library::texture::Texture::*;
+use crate::library::hittable::Hittable::*;
 
 pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new(7)));
 

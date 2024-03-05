@@ -3,11 +3,10 @@ use core::f64;
 use minifb::Window;
 use rayon::prelude::*;
 
-use crate::check_input as input;
-use crate::fps_counter::FpsCounter;
-use crate::{color::Color, ray::Ray, scene::Scene, scene::SCENE, interval::Interval};
+use crate::library::check_input as input;
+use crate::library::{color::Color, ray::Ray, scene::Scene, scene::SCENE, interval::Interval, fps_counter::FpsCounter};
 
-use crate::constants::{WIDTH, HEIGHT};
+use crate::library::constants::{WIDTH, HEIGHT};
 
 pub fn render(window: &Window, mut buffer: Vec<Color>) -> (Vec<Color>, bool) {
     let reset_accumulation = input::check_input(&window, &mut SCENE.write().unwrap());

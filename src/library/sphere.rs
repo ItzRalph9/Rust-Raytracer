@@ -2,8 +2,8 @@ use std::f64::consts::PI;
 
 use nalgebra::Vector3;
 
-use crate::basic_lib::*;
-use crate::{hittable::HittableTrait, material::Material, vector3::Vector3Extensions};
+use crate::library::basic_lib::*;
+use crate::library::{hittable::HittableTrait, material::Material, vector3::Vector3Extensions};
 
 #[derive(Debug, Clone)]
 pub struct Sphere {

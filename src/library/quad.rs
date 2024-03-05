@@ -1,7 +1,7 @@
 use nalgebra::Vector3;
 
-use crate::basic_lib::*;
-use crate::{hittable::HittableTrait, hittable_list::HittableList, hittable::Hittable, material::Material};
+use crate::library::basic_lib::*;
+use crate::library::{hittable::HittableTrait, hittable_list::HittableList, hittable::Hittable, material::Material};
 
 #[derive(Debug, Clone)]
 pub struct Quad {
@@ -65,7 +65,7 @@ impl Quad {
 }
 
 impl HittableTrait for Quad {
-    fn hit(&self, ray: crate::ray::Ray, ray_t: Interval) -> Option<HitObject> {
+    fn hit(&self, ray: Ray, ray_t: Interval) -> Option<HitObject> {
         let denomenator = self.normal.dot(&ray.direction);
 
         // No hit if the ray is parallel to the plane.

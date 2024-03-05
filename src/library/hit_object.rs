@@ -1,5 +1,5 @@
 use nalgebra::Vector3;
-use crate::{material::Material, ray::Ray};
+use crate::library::{material::Material, ray::Ray};
 
 #[derive(Debug, Clone)]
 pub struct HitObject {

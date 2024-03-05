@@ -3,9 +3,8 @@ use nalgebra::Vector3;
 use std::f64::INFINITY;
 use std::f64::NEG_INFINITY;
 
-use crate::basic_lib::*;
-use crate::hittable_list::HittableList;
-use crate::{hittable::{Hittable, HittableTrait}, camera::Camera};
+use crate::library::basic_lib::*;
+use crate::library::{hittable::{Hittable, HittableTrait}, camera::Camera};
 
 #[derive(Debug, Clone)]
 pub struct RotateY {

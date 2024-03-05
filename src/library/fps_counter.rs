@@ -1,6 +1,6 @@
 use std::time::Instant;
-use crate::draw;
-use crate::constants::WIDTH;
+use crate::library::draw;
+use crate::library::constants::WIDTH;
 
 pub struct FpsCounter {
     last_second: Instant,

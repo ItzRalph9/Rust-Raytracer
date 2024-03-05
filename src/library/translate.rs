@@ -1,7 +1,7 @@
 use nalgebra::Vector3;
 
-use crate::basic_lib::*;
-use crate::{hittable::{Hittable, HittableTrait}, hittable_list::HittableList};
+use crate::library::basic_lib::*;
+use crate::library::hittable::{Hittable, HittableTrait};
 
 #[derive(Debug, Clone)]
 pub struct Translate {

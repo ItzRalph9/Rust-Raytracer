@@ -2,8 +2,8 @@ use std::f64::consts::PI;
 use rand::prelude::*;
 use nalgebra::Vector3;
 
-use crate::constants::{WIDTH, HEIGHT};
-use crate::{ray::Ray, scene::Scene, material::Material, color::Color};
+use crate::library::constants::{WIDTH, HEIGHT};
+use crate::library::{ray::Ray, scene::Scene, material::Material, color::Color};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Camera {

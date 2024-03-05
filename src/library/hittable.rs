@@ -1,6 +1,6 @@
-use crate::basic_lib::*;
-use crate::rotate_y::RotateY;
-use crate::{sphere::Sphere, quad::Quad, translate::Translate};
+use crate::library::basic_lib::*;
+use crate::library::rotate_y::RotateY;
+use crate::library::{sphere::Sphere, quad::Quad, translate::Translate};
 
 pub trait HittableTrait: Sync + Send {
     fn hit(&self, ray: Ray, ray_t: Interval) -> Option<HitObject>;

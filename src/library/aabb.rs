@@ -1,6 +1,6 @@
 use nalgebra::Vector3;
 
-use crate::{interval::Interval, ray::Ray};
+use crate::library::{interval::Interval, ray::Ray};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Aabb {

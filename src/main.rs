@@ -1,36 +1,11 @@
-mod render;
-mod check_input;
-mod sphere;
-mod ray;
-mod color;
-mod constants;
-mod scene;
-mod hit_object;
-mod draw;
-mod fps_counter;
-mod material;
-mod vector3;
-mod camera;
-mod interval;
-mod aabb;
-mod hittable_list;
-mod hittable;
-mod bvh;
-mod texture;
-mod image;
-mod perlin;
-mod basic_lib;
-mod quad;
-mod translate;
-mod rotate_y;
+mod library;
 
 extern crate minifb;
 
-use color::Color;
-use fps_counter::FpsCounter;
+use library::{render, color::Color, fps_counter::FpsCounter};
 use minifb::{Key, Window, WindowOptions};
 
-use constants::{WIDTH, HEIGHT}; 
+use library::constants::{WIDTH, HEIGHT}; 
 
 fn main() {
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions::default())

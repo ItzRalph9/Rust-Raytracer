@@ -1,6 +1,6 @@
 use image::{DynamicImage, GenericImageView};
 
-use crate::color::Color;
+use crate::library::color::Color;
 
 #[derive(Debug, Clone)]
 pub struct Image {

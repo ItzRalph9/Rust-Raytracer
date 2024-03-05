@@ -1,5 +1,5 @@
-use crate::basic_lib::*;
-use crate::hittable::Hittable;
+use crate::library::basic_lib::*;
+use crate::library::hittable::Hittable;
 
 #[derive(Debug, Clone)]
 pub struct HittableList {
@@ -25,12 +25,6 @@ impl HittableList {
     pub fn add(&mut self, object: Hittable) {
         self.bounding_box = Aabb::new_from_box(self.bounding_box, object.get_bounding_box());
         self.objects.push(object);
-    }
-
-    pub fn add_list(&mut self, list: HittableList) {
-        for object in list.objects {
-            self.add(object);
-        }
     }
 
     fn _get_bounding_box(&self) -> Aabb {

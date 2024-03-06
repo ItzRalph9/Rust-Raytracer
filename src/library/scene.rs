@@ -3,7 +3,7 @@ use std::sync::RwLock;
 use nalgebra::Vector3;
 use once_cell::sync::Lazy;
 
-use crate::library::{camera::{Camera, CameraDefaults}, color::Color, image::Image, material::Material, perlin::Perlin};
+use crate::library::{camera::{Camera, CameraDefaults}, color::Color, image::Image, material::Material, perlin::Perlin, vector3::Vector3Extensions};
 use crate::library::{hittable_list::HittableList, quad::Quad, rotate_y::RotateY, translate::Translate, sphere::Sphere, quadbox::Quadbox};
 use crate::library::material::Material::*;
 use crate::library::texture::Texture::*;
@@ -11,7 +11,7 @@ use crate::library::hittable::Hittable::*;
 
 use super::constant_medium::ConstantMedium;
 
-pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new(8)));
+pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new(9)));
 
 pub struct Scene {
     pub hittable_list: HittableList,
@@ -29,6 +29,7 @@ impl Scene {
             6 => Self::simple_light(),
             7 => Self::cornell_box(),
             8 => Self::cornell_smoke(),
+            9 => Self::final_scene(),
             _ => Self::random_spheres(),
         }
     }
@@ -402,6 +403,84 @@ impl Scene {
                     background: Color::new(0.0, 0.0, 0.0),
                     vertical_fov: 40.0,
                     lookfrom: Vector3::new(278.0, 278.0, -800.0),
+                    lookat : Vector3::new(278.0, 278.0, 0.0),
+                    vup: Vector3::new(0.0, 1.0, 0.0),
+                    defocus_angle: 0.0,
+                    focus_distance: 10.0,
+                }
+            ),
+        }
+    }
+
+    pub fn final_scene() -> Self {
+        let mut boxes1 = HittableList::new();
+        let ground = Lambertian(SolidColor(Color::new(0.48, 0.83, 0.53)));
+
+        let boxes_per_side = 20;
+        for i in 0..boxes_per_side {
+            for j in 0..boxes_per_side {
+                let w = 100.0;
+                let x0 = -1000.0 + i as f64 * w;
+                let z0 = -1000.0 + j as f64 * w;
+                let y0 = 0.0;
+                let x1 = x0 + w;
+                let y1 = Material::random_float_range(1.0..101.0);
+                let z1 = z0 + w;
+
+                boxes1.add(QuadBox(Quadbox::new(Vector3::new(x0, y0, z0), Vector3::new(x1, y1, z1), ground.clone())));
+            }
+        }
+
+        let mut hittable_list = HittableList::new();
+
+        hittable_list.add_list(boxes1);
+
+        let light = DiffuseLight(SolidColor(Color::new(7.0, 7.0, 7.0)));
+        hittable_list.add(Quad(Quad::new(Vector3::new(123.0, 554.0, 147.0), Vector3::new(300.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 265.0), light)));
+
+        let center1 = Vector3::new(400.0, 400.0, 200.0);
+        let center2 = center1 + Vector3::new(30.0, 0.0, 0.0);
+        let sphere_material = Lambertian(SolidColor(Color::new(0.7, 0.3, 0.1)));
+        hittable_list.add(Sphere(Sphere::new_moving(center1, center2, 50.0, sphere_material)));
+
+        hittable_list.add(Sphere(Sphere::new_stationary(Vector3::new(260.0, 150.0, 45.0), 50.0, Dielectric(1.5))));
+        hittable_list.add(Sphere(Sphere::new_stationary(
+            Vector3::new(0.0, 150.0, 145.0), 50.0, Metal(Color::new(0.8, 0.8, 0.9), 1.0)
+        )));
+
+        let boundary = Sphere(Sphere::new_stationary(Vector3::new(360.0, 150.0, 145.0), 70.0, Dielectric(1.5)));
+        hittable_list.add(boundary.clone());
+        hittable_list.add(ConstantMedium(ConstantMedium::new_from_color(boundary.clone(), 0.2, Color::new(0.2, 0.4, 0.9))));
+        let boundary = Sphere(Sphere::new_stationary(Vector3::new(0.0, 0.0, 0.0), 5000.0, Dielectric(1.5)));
+        hittable_list.add(ConstantMedium(ConstantMedium::new_from_color(boundary, 0.0001, Color::new(1.0, 1.0, 1.0))));
+
+        let emat = Lambertian(Image(Image::load_image("assets/earth_400.jpg")));
+        hittable_list.add(Sphere(Sphere::new_stationary(Vector3::new(400.0, 200.0, 400.0), 100.0, emat)));
+        let pertext = Perlin(Perlin::new(), 0.1);
+        hittable_list.add(Sphere(Sphere::new_stationary(Vector3::new(220.0, 280.0, 300.0), 80.0, Lambertian(pertext))));
+
+        let mut boxes2 = HittableList::new();
+        let white = Lambertian(SolidColor(Color::new(0.73, 0.73, 0.73)));
+        let ns = 1000;
+        for _ in 0..ns {
+            boxes2.add(Sphere(Sphere::new_stationary(Vector3::random_float_range(0.0..165.0), 10.0, white.clone())));
+        }
+
+        for object in boxes2.objects {
+            hittable_list.add(Translate(Box::new(Translate::new(
+                RotateY(Box::new(RotateY::new(object, 15.0))), Vector3::new(-100.0, 270.0, 395.0)
+            ))));
+        }
+
+        Scene {
+            hittable_list,
+            camera: Camera::init(
+                CameraDefaults {
+                    samples_per_pixel: 1,
+                    max_depth: 10,
+                    background: Color::new(0.0, 0.0, 0.0),
+                    vertical_fov: 40.0,
+                    lookfrom: Vector3::new(478.0, 278.0, -600.0),
                     lookat : Vector3::new(278.0, 278.0, 0.0),
                     vup: Vector3::new(0.0, 1.0, 0.0),
                     defocus_angle: 0.0,

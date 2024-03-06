@@ -15,16 +15,15 @@ impl HittableList {
         }
     }
 
-    pub fn _new_from_list(object: Hittable) -> Self {
-        let mut hittable_list = Self::new();
-        hittable_list.add(object);
-
-        hittable_list
-    }
-
     pub fn add(&mut self, object: Hittable) {
         self.bounding_box = Aabb::new_from_box(self.bounding_box, object.get_bounding_box());
         self.objects.push(object);
+    }
+
+    pub fn add_list(&mut self, list: HittableList) {
+        for object in list.objects {
+            self.add(object);
+        }
     }
 
     fn _get_bounding_box(&self) -> Aabb {

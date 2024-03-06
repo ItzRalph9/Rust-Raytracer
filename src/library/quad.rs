@@ -1,7 +1,7 @@
 use nalgebra::Vector3;
 
 use crate::library::basic_lib::*;
-use crate::library::{hittable::HittableTrait, hittable_list::HittableList, hittable::Hittable, material::Material};
+use crate::library::{hittable::HittableTrait, material::Material};
 
 #[derive(Debug, Clone)]
 pub struct Quad {
@@ -39,28 +39,6 @@ impl Quad {
         }
 
         Some((a, b))
-    }
-
-    // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
-    pub fn create_box(a: Vector3<f64>, b: Vector3<f64>, material: Material) -> HittableList {
-        let mut sides = HittableList::new();
-    
-        // Construct the two opposite vertices with the minimum and maximum coordinates.
-        let min = Vector3::new(a.x.min(b.x), a.y.min(b.y), a.z.min(b.z));
-        let max = Vector3::new(a.x.max(b.x), a.y.max(b.y), a.z.max(b.z));
-    
-        let dx = Vector3::new(max.x - min.x, 0.0, 0.0);
-        let dy = Vector3::new(0.0, max.y - min.y, 0.0);
-        let dz = Vector3::new(0.0, 0.0, max.z - min.z);
-    
-        sides.add(Hittable::Quad(Quad::new(Vector3::new(min.x, min.y, max.z),  dx,  dy, material.clone()))); // front
-        sides.add(Hittable::Quad(Quad::new(Vector3::new(max.x, min.y, max.z), -dz,  dy, material.clone()))); // right
-        sides.add(Hittable::Quad(Quad::new(Vector3::new(max.x, min.y, min.z), -dx,  dy, material.clone()))); // back
-        sides.add(Hittable::Quad(Quad::new(Vector3::new(min.x, min.y, min.z),  dz,  dy, material.clone()))); // left
-        sides.add(Hittable::Quad(Quad::new(Vector3::new(min.x, max.y, max.z),  dx, -dz, material.clone()))); // top
-        sides.add(Hittable::Quad(Quad::new(Vector3::new(min.x, min.y, min.z),  dx,  dz, material.clone()))); // bottom
-    
-        sides
     }
 }
 

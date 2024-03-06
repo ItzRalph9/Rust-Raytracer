@@ -28,7 +28,7 @@ impl Interval {
         Interval::new(f64::INFINITY, f64::NEG_INFINITY)
     }
 
-    pub fn _universe() -> Self {
+    pub fn universe() -> Self {
         Interval::new(f64::NEG_INFINITY, f64::INFINITY)
     }
 

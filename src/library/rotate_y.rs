@@ -1,8 +1,5 @@
 use nalgebra::Vector3;
 
-use std::f64::INFINITY;
-use std::f64::NEG_INFINITY;
-
 use crate::library::basic_lib::*;
 use crate::library::{hittable::{Hittable, HittableTrait}, camera::Camera};
 
@@ -21,8 +18,8 @@ impl RotateY {
         let cos_theta = radians.cos();
         let bounding_box = object.get_bounding_box();
 
-        let mut min = Vector3::new(INFINITY, INFINITY, INFINITY);
-        let mut max = Vector3::new(NEG_INFINITY, NEG_INFINITY, NEG_INFINITY);
+        let mut min = Vector3::new(f64::INFINITY, f64::INFINITY, f64::INFINITY);
+        let mut max = Vector3::new(f64::NEG_INFINITY, f64::NEG_INFINITY, f64::NEG_INFINITY);
 
         for i in 0..2 {
             for j in 0..2 {

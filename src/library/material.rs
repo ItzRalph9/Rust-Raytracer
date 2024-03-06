@@ -9,6 +9,7 @@ pub enum Material {
     Metal(Color, f64),
     Dielectric(f64),
     DiffuseLight(Texture),
+    IsoTropic(Texture),
 }
 
 impl Material {
@@ -65,6 +66,12 @@ impl Material {
             Material::DiffuseLight(_) => {
                 None
             },
+            Material::IsoTropic(albedo) => {
+                let scattered = Ray::new(hit_object.point, Ray::random_unit_vector(), r_in.time);
+                let attenuation = albedo.value(hit_object.u, hit_object.v, hit_object.point);
+                
+                Some((attenuation, scattered))
+            },
         }
     }
 
@@ -87,7 +94,7 @@ impl Material {
 
     pub fn random_float() -> f64 {
         let mut rng = rand::thread_rng();
-        rng.gen::<f64>()
+        rng.gen()
     }
 
     pub fn random_float_range(range: std::ops::Range<f64>) -> f64 {

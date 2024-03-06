@@ -1,6 +1,8 @@
 use crate::library::basic_lib::*;
 use crate::library::rotate_y::RotateY;
-use crate::library::{sphere::Sphere, quad::Quad, translate::Translate};
+use crate::library::{sphere::Sphere, quad::Quad, translate::Translate, quadbox::Quadbox};
+
+use super::constant_medium::ConstantMedium;
 
 pub trait HittableTrait: Sync + Send {
     fn hit(&self, ray: Ray, ray_t: Interval) -> Option<HitObject>;
@@ -12,8 +14,10 @@ pub trait HittableTrait: Sync + Send {
 pub enum Hittable {
     Sphere(Sphere),
     Quad(Quad),
+    QuadBox(Quadbox),
     Translate(Box<Translate>),
     RotateY(Box<RotateY>),
+    ConstantMedium(ConstantMedium),
     // Bvh(Box<BvhNode>)
 }
 
@@ -22,8 +26,10 @@ impl Hittable {
         match self {
             Hittable::Sphere(sphere) => sphere.hit(ray, ray_t),
             Hittable::Quad(quad) => quad.hit(ray, ray_t),
+            Hittable::QuadBox(quad_box) => quad_box.hit(ray, ray_t),
             Hittable::Translate(translate) => translate.hit(ray, ray_t),
             Hittable::RotateY(rotate_y) => rotate_y.hit(ray, ray_t),
+            Hittable::ConstantMedium(medium) => medium.hit(ray, ray_t),
             // Hittable::Bvh(bvh) => bvh.hit(ray, ray_t),
         }
     }
@@ -32,8 +38,10 @@ impl Hittable {
         match self {
             Hittable::Sphere(sphere) => sphere.get_bounding_box(),
             Hittable::Quad(quad) => quad.get_bounding_box(),
+            Hittable::QuadBox(quad_box) => quad_box.get_bounding_box(),
             Hittable::Translate(translate) => translate.get_bounding_box(),
             Hittable::RotateY(rotate_y) => rotate_y.get_bounding_box(),
+            Hittable::ConstantMedium(medium) => medium.get_bounding_box(),
             // Hittable::Bvh(bvh) => bvh.get_bounding_box(),
         }
     }

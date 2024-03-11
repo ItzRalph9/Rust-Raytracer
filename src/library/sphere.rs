@@ -54,10 +54,6 @@ impl Sphere {
         self.center1 + time * self.center_vec
     }
 
-    pub fn set_sphere_center(&mut self, center: Vector3<f64>) {
-        self.center1 = center;
-    }
-
     fn get_sphere_uv(&self, p: Vector3<f64>) -> (f64, f64) {
         // p: a given point on the sphere of radius one, centered at the origin.
         // u: returned value [0,1] of angle around the Y axis from X=-1.

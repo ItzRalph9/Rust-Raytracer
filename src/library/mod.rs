@@ -25,3 +25,4 @@ pub mod translate;
 pub mod rotate_y;
 pub mod constant_medium;
 pub mod quadbox;
+pub mod triangle;

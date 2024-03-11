@@ -3,6 +3,7 @@ use crate::library::rotate_y::RotateY;
 use crate::library::{sphere::Sphere, quad::Quad, translate::Translate, quadbox::Quadbox};
 
 use super::constant_medium::ConstantMedium;
+use super::triangle::Triangle;
 
 pub trait HittableTrait: Sync + Send {
     fn hit(&self, ray: Ray, ray_t: Interval) -> Option<HitObject>;
@@ -18,6 +19,7 @@ pub enum Hittable {
     Translate(Box<Translate>),
     RotateY(Box<RotateY>),
     ConstantMedium(ConstantMedium),
+    Triangle(Triangle),
     // Bvh(Box<BvhNode>)
 }
 
@@ -30,6 +32,7 @@ impl Hittable {
             Hittable::Translate(translate) => translate.hit(ray, ray_t),
             Hittable::RotateY(rotate_y) => rotate_y.hit(ray, ray_t),
             Hittable::ConstantMedium(medium) => medium.hit(ray, ray_t),
+            Hittable::Triangle(triangle) => triangle.hit(ray, ray_t),
             // Hittable::Bvh(bvh) => bvh.hit(ray, ray_t),
         }
     }
@@ -42,6 +45,7 @@ impl Hittable {
             Hittable::Translate(translate) => translate.get_bounding_box(),
             Hittable::RotateY(rotate_y) => rotate_y.get_bounding_box(),
             Hittable::ConstantMedium(medium) => medium.get_bounding_box(),
+            Hittable::Triangle(triangle) => triangle.get_bounding_box(),
             // Hittable::Bvh(bvh) => bvh.get_bounding_box(),
         }
     }

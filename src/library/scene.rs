@@ -9,9 +9,9 @@ use crate::library::material::Material::*;
 use crate::library::texture::Texture::*;
 use crate::library::hittable::Hittable::*;
 
-use super::constant_medium::ConstantMedium;
+use super::{constant_medium::ConstantMedium, triangle::Triangle};
 
-pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new(9)));
+pub static SCENE: Lazy<RwLock<Scene>> = Lazy::new(|| RwLock::new(Scene::new(10)));
 
 pub struct Scene {
     pub hittable_list: HittableList,
@@ -30,28 +30,8 @@ impl Scene {
             7 => Self::cornell_box(),
             8 => Self::cornell_smoke(),
             9 => Self::final_scene(),
+            10 => Self::triangle(),
             _ => Self::random_spheres(),
-        }
-    }
-    
-    pub fn get_sphere_position(&mut self, sphere_id : Option<usize>) -> Vector3<f64> {
-        let last_item_in_scene = self.hittable_list.objects.len() - 1;
-        let sphere_id = sphere_id.unwrap_or(last_item_in_scene);
-
-        let hittable = &self.hittable_list.objects[sphere_id];
-
-        match &hittable {
-            Sphere(sphere) => sphere.get_sphere_center(0.0),
-            _ => Vector3::new(0.0, 0.0, 0.0),
-        }
-    }
-
-    pub fn set_sphere_position(&mut self, position: Vector3<f64>, sphere_id : Option<usize>) {
-        let last_item_in_scene = self.hittable_list.objects.len() - 1;
-        let sphere_id = sphere_id.unwrap_or(last_item_in_scene);
-
-        if let Sphere(sphere) = &mut self.hittable_list.objects[sphere_id] {
-            sphere.set_sphere_center(position);
         }
     }
 
@@ -481,6 +461,58 @@ impl Scene {
                     background: Color::new(0.0, 0.0, 0.0),
                     vertical_fov: 40.0,
                     lookfrom: Vector3::new(478.0, 278.0, -600.0),
+                    lookat : Vector3::new(278.0, 278.0, 0.0),
+                    vup: Vector3::new(0.0, 1.0, 0.0),
+                    defocus_angle: 0.0,
+                    focus_distance: 10.0,
+                }
+            ),
+        }
+    }
+
+    pub fn triangle() -> Self {
+        let mut hittable_list = HittableList::new();
+    
+        // Materials
+        let white = Lambertian(SolidColor(Color::new(1.0, 1.0, 1.0)));
+        let teal =  Lambertian(SolidColor(Color::new(0.0, 0.9, 1.0)));
+
+        // Box
+        let light = DiffuseLight(SolidColor(Color::new(2.5, 2.5, 2.5)));
+        let left_light = DiffuseLight(SolidColor(Color::new(1.0, 1.0, 1.0)));
+        hittable_list.add(Quad(Quad::new(Vector3::new(77.5, 554.0, 77.5), Vector3::new(400.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 400.0), light.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(800.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), Vector3::new(0.0, 0.0, 555.0), left_light.clone())));
+        // hittable_list.add(Quad(Quad::new(Vector3::new(77.5, -554.0, 77.5), Vector3::new(400.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 400.0), light.clone())));
+        // hittable_list.add(Quad(Quad::new(Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), Vector3::new(0.0, 0.0, 555.0), metal.clone())));
+        // hittable_list.add(Quad(Quad::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), Vector3::new(0.0, 0.0, 555.0), white.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 555.0), white.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(555.0, 555.0, 555.0), Vector3::new(-555.0, 0.0, 0.0), Vector3::new(0.0, 0.0,-555.0), white.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(0.0, 0.0, 555.0), Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), white.clone())));
+
+        // Pyramid
+        hittable_list.add(Triangle(Triangle::new(Vector3::new(220.0, 220.0, 220.0), Vector3::new(335.0, 220.0, 220.0), Vector3::new(277.5, 300.0, 277.5), teal.clone())));
+        hittable_list.add(Triangle(Triangle::new(Vector3::new(220.0, 220.0, 220.0), Vector3::new(220.0, 220.0, 335.0), Vector3::new(277.5, 300.0, 277.5), teal.clone())));
+        hittable_list.add(Triangle(Triangle::new(Vector3::new(335.0, 220.0, 335.0), Vector3::new(220.0, 220.0, 335.0), Vector3::new(277.5, 300.0, 277.5), teal.clone())));
+        hittable_list.add(Triangle(Triangle::new(Vector3::new(335.0, 220.0, 335.0), Vector3::new(335.0, 220.0, 220.0), Vector3::new(277.5, 300.0, 277.5), teal.clone())));
+        hittable_list.add(Quad(Quad::new(Vector3::new(220.0, 220.0, 220.0), Vector3::new(115.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 115.0), teal.clone())));
+
+        let fog_box = QuadBox(Quadbox::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(-50.0, 555.0, 555.0), teal.clone()));
+        let fog = ConstantMedium(ConstantMedium::new(fog_box, 0.005, SolidColor(Color::new(0.2, 0.2, 0.2))));
+        hittable_list.add(fog);
+
+
+        Scene {
+            hittable_list,
+            camera: Camera::init(
+                CameraDefaults {
+                    samples_per_pixel: 1,
+                    max_depth: 50,
+                    // background: Color::new(0.7, 0.8, 1.0),
+                    background: Color::new(0.0, 0.0, 0.0),
+                    vertical_fov: 40.0,
+                    // lookfrom: Vector3::new(550.0, 300.0, 150.0),
+                    // lookat : Vector3::new(0.0, 250.0, 345.0),
+                    lookfrom: Vector3::new(278.0, 278.0, -800.0),
                     lookat : Vector3::new(278.0, 278.0, 0.0),
                     vup: Vector3::new(0.0, 1.0, 0.0),
                     defocus_angle: 0.0,
